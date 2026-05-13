@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard — Information-dense (mock)</title>
+    <style>
+      :root {
+        --paper: #f5f1ea;
+        --paper-tint: #ebe5d9;
+        --ink: #0d1218;
+        --ink-60: rgba(13, 18, 24, 0.6);
+        --ink-20: rgba(13, 18, 24, 0.2);
+        --rule: rgba(13, 18, 24, 0.12);
+        --amber: #d06e29;
+        --forest: #2b4f3c;
+        --stone: #8a8780;
+        --barn: #a23434;
+        --leaf: #c69a4d;
+        --font-display: "Recoleta", "GT Sectra", Georgia, serif;
+        --font-body: "Public Sans", "Söhne", "Inter", ui-sans-serif, sans-serif;
+        --font-mono: "JetBrains Mono", "Berkeley Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 13px;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+      }
+      .caps {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+      .display {
+        font-family: var(--font-display);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 224px 1fr;
+        min-height: 100vh;
+      }
+      .sidebar {
+        background: var(--ink);
+        color: var(--paper-tint);
+        padding: 18px 14px;
+        font-size: 12px;
+      }
+      .sidebar .brand {
+        font-family: var(--font-display);
+        font-size: 18px;
+        letter-spacing: -0.01em;
+        color: var(--paper);
+      }
+      .sidebar .sub {
+        color: rgba(245, 241, 234, 0.5);
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-top: 3px;
+        margin-bottom: 20px;
+      }
+      .nav {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .nav li {
+        padding: 6px 10px;
+        border-radius: 2px;
+        color: rgba(245, 241, 234, 0.75);
+      }
+      .nav li.active {
+        background: rgba(245, 241, 234, 0.08);
+        border-left: 2px solid #5b8def;
+        color: var(--paper);
+        padding-left: 8px;
+      }
+      .sidebar .foot {
+        position: fixed;
+        bottom: 14px;
+        font-size: 10px;
+        color: rgba(245, 241, 234, 0.35);
+        font-family: var(--font-mono);
+      }
+
+      main {
+        padding: 18px 22px 60px;
+        min-width: 0;
+      }
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 10px;
+        margin-bottom: 14px;
+      }
+      .top h1 {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+      }
+      .top .meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-60);
+      }
+
+      /* KPI grid — 6 cols, 2 rows */
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 0;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        background: var(--paper-tint);
+      }
+      .kpi {
+        padding: 10px 12px;
+        border-right: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+        background: var(--paper);
+      }
+      .kpi:nth-child(6n) {
+        border-right: none;
+      }
+      .kpi:nth-last-child(-n + 6) {
+        border-bottom: none;
+      }
+      .kpi .label {
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+      }
+      .kpi .val {
+        font-family: var(--font-mono);
+        font-size: 22px;
+        font-weight: 500;
+        margin-top: 3px;
+        letter-spacing: -0.01em;
+      }
+      .kpi .d {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        margin-top: 2px;
+      }
+      .d.up {
+        color: var(--forest);
+      }
+      .d.dn {
+        color: var(--barn);
+      }
+      .d.flat {
+        color: var(--stone);
+      }
+
+      /* row 2: spark strip + ticker */
+      .row2 {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .card {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 2px;
+      }
+      .card-h {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--rule);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .card-h .t {
+        font-family: var(--font-display);
+        font-size: 13px;
+        letter-spacing: -0.005em;
+      }
+      .card-h .m {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+
+      .sparks {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+      }
+      .spark {
+        padding: 10px 12px;
+        border-right: 1px solid var(--rule);
+      }
+      .spark:last-child {
+        border-right: none;
+      }
+      .spark .l {
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+      }
+      .spark .v {
+        font-family: var(--font-mono);
+        font-size: 15px;
+        margin-top: 2px;
+      }
+      .spark svg {
+        display: block;
+        margin-top: 4px;
+      }
+
+      .ticker {
+        max-height: 180px;
+        overflow: hidden;
+      }
+      .ticker ul {
+        list-style: none;
+      }
+      .ticker li {
+        padding: 6px 12px;
+        border-bottom: 1px solid var(--rule);
+        display: grid;
+        grid-template-columns: 64px 1fr auto;
+        gap: 8px;
+        align-items: baseline;
+        font-size: 12px;
+      }
+      .ticker li:last-child {
+        border-bottom: none;
+      }
+      .ticker .ts {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+      .ticker .tag {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        padding: 1px 5px;
+        border: 1px solid var(--rule);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .tag.ok {
+        color: var(--forest);
+        border-color: rgba(43, 79, 60, 0.3);
+      }
+      .tag.err {
+        color: var(--barn);
+        border-color: rgba(162, 52, 52, 0.3);
+      }
+      .tag.info {
+        color: var(--stone);
+      }
+
+      /* row 3: agent matrix + top prospects */
+      .row3 {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      table.matrix {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      table.matrix th,
+      table.matrix td {
+        padding: 6px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--rule);
+        font-weight: 400;
+      }
+      table.matrix th {
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+      }
+      table.matrix td.num {
+        font-family: var(--font-mono);
+        text-align: right;
+      }
+      .dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        margin-right: 6px;
+        vertical-align: middle;
+      }
+      .dot.g {
+        background: var(--forest);
+      }
+      .dot.r {
+        background: var(--barn);
+      }
+      .dot.y {
+        background: var(--leaf);
+      }
+
+      /* row 4: bars */
+      .row4 {
+        margin-top: 14px;
+      }
+      .bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 80px;
+        padding: 12px 12px 6px;
+      }
+      .bar {
+        flex: 1;
+        background: var(--ink);
+        opacity: 0.85;
+      }
+      .bar.hi {
+        background: var(--amber);
+      }
+      .bars-x {
+        display: flex;
+        gap: 3px;
+        padding: 0 12px 10px;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        color: var(--ink-60);
+      }
+      .bars-x span {
+        flex: 1;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">Edvin Solar</div>
+        <div class="sub">Prospect Agent System</div>
+        <ul class="nav">
+          <li class="active">◼ Dashboard</li>
+          <li>☰ Prospekt</li>
+          <li>🔍 Sök</li>
+          <li>⬤ Detektion</li>
+          <li>☇ Karta</li>
+          <li>⚙ Agenter</li>
+          <li>↻ Berikning</li>
+          <li>🛠 Inställningar</li>
+        </ul>
+        <div class="foot">v0.1.0</div>
+      </aside>
+      <main>
+        <div class="top">
+          <h1>Översikt</h1>
+          <div class="meta">TIS 21 APR 2026 · 14:32 · 847 akt. sessioner</div>
+        </div>
+
+        <section class="kpis">
+          <div class="kpi">
+            <div class="label">Prospekt totalt</div>
+            <div class="val tabular">1 247</div>
+            <div class="d up">▲ 23 idag</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Berikade</div>
+            <div class="val tabular">912</div>
+            <div class="d up">▲ 47 · 73.1%</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Detekterade</div>
+            <div class="val tabular">384</div>
+            <div class="d up">▲ 12 · 30.8%</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Konv.grad</div>
+            <div class="val tabular">18.4%</div>
+            <div class="d dn">▼ 0.6 pp</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Medel score</div>
+            <div class="val tabular">6.83</div>
+            <div class="d up">▲ 0.12</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Kö (berik.)</div>
+            <div class="val tabular">61</div>
+            <div class="d flat">— stabil</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Paneler fn.</div>
+            <div class="val tabular">71</div>
+            <div class="d dn">▼ 3 dagar</div>
+          </div>
+          <div class="kpi">
+            <div class="label">kWh-pot. sum</div>
+            <div class="val tabular">8.4M</div>
+            <div class="d up">▲ 214k</div>
+          </div>
+          <div class="kpi">
+            <div class="label">CoVe pass</div>
+            <div class="val tabular">87%</div>
+            <div class="d up">▲ 2 pp</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Gemini kv.</div>
+            <div class="val tabular">42/60</div>
+            <div class="d flat">70% kv.</div>
+          </div>
+          <div class="kpi">
+            <div class="label">PVGIS cache</div>
+            <div class="val tabular">1 083</div>
+            <div class="d up">HIT 94%</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Fel 24h</div>
+            <div class="val tabular">4</div>
+            <div class="d dn">▼ 11 v/v</div>
+          </div>
+        </section>
+
+        <section class="row2">
+          <div class="card">
+            <div class="card-h">
+              <div class="t">Trender · 14 dagar</div>
+              <div class="m">källa: daily_stats.sql</div>
+            </div>
+            <div class="sparks">
+              <div class="spark">
+                <div class="l">Nya prospekt</div>
+                <div class="v tabular">+186</div>
+                <svg width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+                  <polyline
+                    fill="none"
+                    stroke="#0d1218"
+                    stroke-width="1.3"
+                    points="0,22 10,18 20,20 30,14 40,16 50,10 60,12 70,8 80,11 90,6 100,9 110,4 120,7"
+                  />
+                </svg>
+              </div>
+              <div class="spark">
+                <div class="l">Berikningar</div>
+                <div class="v tabular">+324</div>
+                <svg width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+                  <polyline
+                    fill="none"
+                    stroke="#d06e29"
+                    stroke-width="1.3"
+                    points="0,20 10,22 20,17 30,19 40,12 50,15 60,9 70,11 80,7 90,10 100,5 110,8 120,3"
+                  />
+                </svg>
+              </div>
+              <div class="spark">
+                <div class="l">Detekteringar</div>
+                <div class="v tabular">+88</div>
+                <svg width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+                  <polyline
+                    fill="none"
+                    stroke="#2b4f3c"
+                    stroke-width="1.3"
+                    points="0,18 10,15 20,17 30,13 40,16 50,11 60,14 70,9 80,12 90,8 100,11 110,6 120,9"
+                  />
+                </svg>
+              </div>
+              <div class="spark">
+                <div class="l">Fel</div>
+                <div class="v tabular">11</div>
+                <svg width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+                  <polyline
+                    fill="none"
+                    stroke="#a23434"
+                    stroke-width="1.3"
+                    points="0,6 10,10 20,8 30,14 40,12 50,18 60,15 70,20 80,18 90,22 100,19 110,24 120,22"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card ticker">
+            <div class="card-h">
+              <div class="t">Händelseström</div>
+              <div class="m">live · agent bus</div>
+            </div>
+            <ul>
+              <li>
+                <span class="ts">14:31</span><span>PanelAgent klar: Sveagatan 12, Falun</span
+                ><span class="tag ok">OK</span>
+              </li>
+              <li>
+                <span class="ts">14:28</span><span>Berikning: 23 nya prospekt via CSV</span
+                ><span class="tag info">IN</span>
+              </li>
+              <li>
+                <span class="ts">14:24</span
+                ><span>PatternAgent insight: "Takvinkel 35° dominerar"</span
+                ><span class="tag info">INS</span>
+              </li>
+              <li>
+                <span class="ts">14:19</span
+                ><span>PVGIS timeout: Östermalmsg. 8, Sthlm (retry)</span
+                ><span class="tag err">ERR</span>
+              </li>
+              <li>
+                <span class="ts">14:15</span><span>CoVe verifierade: 7 av 8 agenter</span
+                ><span class="tag ok">OK</span>
+              </li>
+              <li>
+                <span class="ts">14:11</span><span>ScoreAgent: score ökad 5.4 → 7.1</span
+                ><span class="tag ok">OK</span>
+              </li>
+              <li>
+                <span class="ts">14:07</span><span>Nominatim cache miss: Kopparbergsv. 44</span
+                ><span class="tag info">NET</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="row3">
+          <div class="card">
+            <div class="card-h">
+              <div class="t">Agenter</div>
+              <div class="m">senaste körning</div>
+            </div>
+            <table class="matrix">
+              <tr>
+                <th>Agent</th>
+                <th>Status</th>
+                <th>Körningar</th>
+                <th>Fel %</th>
+              </tr>
+              <tr>
+                <td><span class="dot g"></span>PanelAgent</td>
+                <td>14:31</td>
+                <td class="num">1 204</td>
+                <td class="num">0.4</td>
+              </tr>
+              <tr>
+                <td><span class="dot g"></span>ScoreAgent</td>
+                <td>14:28</td>
+                <td class="num">912</td>
+                <td class="num">0.1</td>
+              </tr>
+              <tr>
+                <td><span class="dot y"></span>PatternAgent</td>
+                <td>14:24</td>
+                <td class="num">48</td>
+                <td class="num">2.1</td>
+              </tr>
+              <tr>
+                <td><span class="dot g"></span>PIIFilter</td>
+                <td>14:22</td>
+                <td class="num">1 247</td>
+                <td class="num">0.0</td>
+              </tr>
+              <tr>
+                <td><span class="dot r"></span>ImageAgent</td>
+                <td>13:58</td>
+                <td class="num">384</td>
+                <td class="num">5.7</td>
+              </tr>
+              <tr>
+                <td><span class="dot g"></span>GeocodeAgent</td>
+                <td>14:31</td>
+                <td class="num">1 208</td>
+                <td class="num">0.8</td>
+              </tr>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-h">
+              <div class="t">Topprospekt (score)</div>
+              <div class="m">uppdaterad 14:31</div>
+            </div>
+            <table class="matrix">
+              <tr>
+                <th>#</th>
+                <th>Adress</th>
+                <th>Ort</th>
+                <th>kWh/år</th>
+                <th>Score</th>
+              </tr>
+              <tr>
+                <td class="num">1</td>
+                <td>Sveagatan 12</td>
+                <td>Falun</td>
+                <td class="num">11 240</td>
+                <td class="num">9.4</td>
+              </tr>
+              <tr>
+                <td class="num">2</td>
+                <td>Kopparbergsvägen 44</td>
+                <td>Borlänge</td>
+                <td class="num">10 880</td>
+                <td class="num">9.1</td>
+              </tr>
+              <tr>
+                <td class="num">3</td>
+                <td>Storgatan 8</td>
+                <td>Ludvika</td>
+                <td class="num">9 720</td>
+                <td class="num">8.9</td>
+              </tr>
+              <tr>
+                <td class="num">4</td>
+                <td>Tallvägen 3</td>
+                <td>Säter</td>
+                <td class="num">9 180</td>
+                <td class="num">8.6</td>
+              </tr>
+              <tr>
+                <td class="num">5</td>
+                <td>Björkgatan 27</td>
+                <td>Avesta</td>
+                <td class="num">8 940</td>
+                <td class="num">8.4</td>
+              </tr>
+              <tr>
+                <td class="num">6</td>
+                <td>Fridhemsvägen 11</td>
+                <td>Hedemora</td>
+                <td class="num">8 510</td>
+                <td class="num">8.2</td>
+              </tr>
+              <tr>
+                <td class="num">7</td>
+                <td>Österängsgatan 2</td>
+                <td>Mora</td>
+                <td class="num">8 320</td>
+                <td class="num">8.0</td>
+              </tr>
+            </table>
+          </div>
+        </section>
+
+        <section class="row4 card">
+          <div class="card-h">
+            <div class="t">Prospekt per dag · 14 d</div>
+            <div class="m">total · berikade · detekterade</div>
+          </div>
+          <div class="bars">
+            <div class="bar" style="height: 28%"></div>
+            <div class="bar" style="height: 42%"></div>
+            <div class="bar" style="height: 36%"></div>
+            <div class="bar" style="height: 48%"></div>
+            <div class="bar" style="height: 54%"></div>
+            <div class="bar" style="height: 44%"></div>
+            <div class="bar" style="height: 58%"></div>
+            <div class="bar" style="height: 66%"></div>
+            <div class="bar" style="height: 62%"></div>
+            <div class="bar" style="height: 74%"></div>
+            <div class="bar" style="height: 68%"></div>
+            <div class="bar" style="height: 82%"></div>
+            <div class="bar" style="height: 76%"></div>
+            <div class="bar hi" style="height: 94%"></div>
+          </div>
+          <div class="bars-x">
+            <span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span
+            ><span>14</span> <span>15</span><span>16</span><span>17</span><span>18</span
+            ><span>19</span><span>20</span><span>21</span>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

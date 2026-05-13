@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "charliermarsh.ruff",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-azuretools.vscode-containers",
+    "redhat.vscode-yaml",
+    "ms-vscode.makefile-tools",
+    "mikestead.dotenv",
+    "eamodio.gitlens"
+  ]
+}

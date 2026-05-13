@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <title>Detektion — paneldetektion (mock)</title>
+    <style>
+      :root {
+        --paper: #f5f1ea;
+        --paper-tint: #ebe5d9;
+        --ink: #0d1218;
+        --ink-80: rgba(13, 18, 24, 0.8);
+        --ink-60: rgba(13, 18, 24, 0.6);
+        --ink-40: rgba(13, 18, 24, 0.4);
+        --ink-20: rgba(13, 18, 24, 0.2);
+        --rule: rgba(13, 18, 24, 0.12);
+        --amber: #d06e29;
+        --forest: #2b4f3c;
+        --stone: #8a8780;
+        --barn: #a23434;
+        --leaf: #c69a4d;
+        --azure: #2f5ec9;
+
+        --sb-bg: #1a1a24;
+        --sb-edge: rgba(255, 255, 255, 0.06);
+        --sb-text: rgba(255, 255, 255, 0.72);
+        --sb-text-strong: #f2ece0;
+        --sb-icon: rgba(255, 255, 255, 0.55);
+        --sb-hover: rgba(255, 255, 255, 0.05);
+        --sb-active: rgba(255, 255, 255, 0.04);
+        --sb-muted: rgba(255, 255, 255, 0.4);
+
+        --font-display: "GT Alpina", "Playfair Display", "Recoleta", Georgia, serif;
+        --font-body: "Inter", "Public Sans", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", "Berkeley Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "tnum", "ss01", "cv11";
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      :focus-visible {
+        outline: 2px solid var(--azure);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 248px 1fr;
+        min-height: 100vh;
+      }
+
+      /* Sidebar (identical) */
+      .sidebar {
+        background: var(--sb-bg);
+        color: var(--sb-text);
+        border-right: 1px solid var(--sb-edge);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+      }
+      .sb-head {
+        padding: 20px 16px 16px;
+        border-bottom: 1px solid var(--sb-edge);
+      }
+      .sb-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-logo {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+      }
+      .sb-wordmark {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: var(--sb-text-strong);
+      }
+      .sb-tagline {
+        margin-top: 8px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+      .sb-section {
+        padding: 12px 16px 6px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+      .nav {
+        list-style: none;
+        padding: 0 8px;
+        margin: 0;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .nav::-webkit-scrollbar {
+        width: 6px;
+      }
+      .nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+      }
+      .nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 14px;
+        font-weight: 450;
+        color: var(--sb-text);
+        border-left: 2px solid transparent;
+        border-radius: 2px;
+        transition:
+          background 120ms ease,
+          color 120ms ease;
+      }
+      .nav a svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        color: var(--sb-icon);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: 0 0 16px;
+        transition: color 120ms ease;
+      }
+      .nav a:hover {
+        background: var(--sb-hover);
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a:hover svg {
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a[aria-current="page"] {
+        background: var(--sb-active);
+        border-left-color: var(--amber);
+        color: var(--sb-text-strong);
+      }
+      .nav a[aria-current="page"] svg {
+        color: var(--amber);
+      }
+      .sb-user {
+        border-top: 1px solid var(--sb-edge);
+        padding: 12px 16px 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        flex: 0 0 32px;
+      }
+      .sb-user-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .sb-user-name {
+        font-size: 14px;
+        color: var(--sb-text-strong);
+        line-height: 1.2;
+      }
+      .sb-user-email {
+        font-size: 11px;
+        color: var(--sb-muted);
+        line-height: 1.2;
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sb-chev {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        color: var(--sb-muted);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .sb-version {
+        padding: 4px 16px 12px;
+        text-align: center;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.25);
+        letter-spacing: 0.04em;
+      }
+
+      /* Topbar */
+      .main-col {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .topbar {
+        height: 48px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--paper);
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        gap: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .breadcrumb {
+        font-size: 12px;
+        color: var(--ink-60);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .breadcrumb .sep {
+        color: var(--ink-20);
+      }
+      .breadcrumb .current {
+        color: var(--ink);
+      }
+      .cmdk {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        background: var(--paper);
+        color: var(--ink-60);
+        font-size: 12px;
+        min-width: 320px;
+        max-width: 420px;
+        margin: 0 auto;
+        cursor: pointer;
+      }
+      .cmdk:hover {
+        border-color: var(--ink-40);
+      }
+      .cmdk svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .cmdk .kbd {
+        margin-left: auto;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 1px 6px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        color: var(--ink-60);
+        background: var(--paper-tint);
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+      }
+      .icon-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 0;
+        color: var(--ink-60);
+        cursor: pointer;
+        border-radius: 2px;
+      }
+      .icon-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .icon-btn:hover {
+        background: var(--paper-tint);
+        color: var(--ink);
+      }
+      .tb-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      /* Main */
+      main {
+        padding: 40px 40px 48px;
+        max-width: 1440px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .page-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+      }
+      .page-head h1 {
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 400;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+      }
+      .page-head .meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+      }
+      .lede {
+        color: var(--ink-80);
+        font-size: 16px;
+        line-height: 1.6;
+        max-width: 62ch;
+        margin-bottom: 32px;
+      }
+
+      /* Run bar */
+      .runbar {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 16px;
+        align-items: center;
+        padding: 20px 24px;
+        border: 1px solid var(--rule);
+        border-left: 3px solid var(--amber);
+        border-radius: 2px;
+        background: var(--paper);
+        margin-bottom: 40px;
+      }
+      .runbar .q {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--amber);
+        margin-bottom: 6px;
+      }
+      .runbar h3 {
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: 400;
+        letter-spacing: -0.005em;
+        line-height: 1.2;
+      }
+      .runbar p {
+        color: var(--ink-80);
+        font-size: 13px;
+        margin-top: 4px;
+      }
+      .runbar .stats {
+        display: flex;
+        gap: 24px;
+        align-items: baseline;
+        font-variant-numeric: tabular-nums;
+      }
+      .runbar .stats .l {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-60);
+        display: block;
+      }
+      .runbar .stats .v {
+        font-family: var(--font-body);
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 16px;
+        background: var(--paper);
+        color: var(--ink);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background: var(--paper-tint);
+        border-color: var(--ink-40);
+      }
+      .btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .btn.primary {
+        background: var(--azure);
+        color: #fff;
+        border-color: var(--azure);
+        font-weight: 500;
+      }
+      .btn.primary:hover {
+        filter: brightness(1.05);
+      }
+
+      /* Grid of cards */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+      .dcard {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 2px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .dcard .frame {
+        aspect-ratio: 3/2;
+        background: var(--paper-tint);
+        border-bottom: 1px solid var(--rule);
+        position: relative;
+        overflow: hidden;
+      }
+      .dcard .frame::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          repeating-linear-gradient(
+            0deg,
+            transparent 0,
+            transparent 23px,
+            rgba(13, 18, 24, 0.05) 23px,
+            rgba(13, 18, 24, 0.05) 24px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent 0,
+            transparent 23px,
+            rgba(13, 18, 24, 0.05) 23px,
+            rgba(13, 18, 24, 0.05) 24px
+          );
+      }
+      .dcard .roof {
+        position: absolute;
+        left: 18%;
+        top: 22%;
+        width: 64%;
+        height: 56%;
+        background: rgba(13, 18, 24, 0.08);
+        border: 1px solid rgba(13, 18, 24, 0.2);
+        transform: skewX(-4deg);
+      }
+      .dcard .bb {
+        position: absolute;
+        border: 1.5px solid var(--amber);
+      }
+      .dcard .bb::after {
+        content: attr(data-label);
+        position: absolute;
+        top: -18px;
+        left: -1px;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        background: var(--amber);
+        color: #fff;
+        padding: 1px 5px;
+        letter-spacing: 0.04em;
+      }
+      .dcard .tag {
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        background: var(--paper);
+        padding: 3px 7px;
+        border: 1px solid var(--rule);
+        color: var(--ink-60);
+      }
+      .dcard .body {
+        padding: 16px 18px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .dcard h4 {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 400;
+        letter-spacing: -0.005em;
+        line-height: 1.2;
+      }
+      .dcard .city {
+        font-size: 12px;
+        color: var(--ink-60);
+      }
+      .dcard .metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 16px;
+        margin-top: 8px;
+        padding-top: 12px;
+        border-top: 1px solid var(--rule);
+        font-size: 12px;
+      }
+      .dcard .metrics .l {
+        color: var(--ink-60);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        display: block;
+        margin-bottom: 2px;
+      }
+      .dcard .metrics .v {
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .conf {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--ink-80);
+        font-variant-numeric: tabular-nums;
+      }
+      .conf .bar {
+        display: inline-block;
+        width: 56px;
+        height: 3px;
+        background: var(--rule);
+        position: relative;
+        border-radius: 1px;
+        overflow: hidden;
+      }
+      .conf .bar > span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: var(--forest);
+      }
+      .conf.hi .bar > span {
+        background: var(--forest);
+      }
+      .conf.mid .bar > span {
+        background: var(--leaf);
+      }
+      .conf.lo .bar > span {
+        background: var(--barn);
+      }
+      .conf strong {
+        font-weight: 500;
+        color: var(--ink);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" aria-label="Primär navigation">
+        <div class="sb-head">
+          <div class="sb-brand">
+            <svg class="sb-logo" viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="10" cy="7" r="2.6" fill="#d06e29" />
+              <path d="M1.5 15.5 L10 8.5 L18.5 15.5 Z" fill="#d06e29" opacity="0.9" />
+              <path d="M4 15.5 L10 10.5 L16 15.5 Z" fill="#1a1a24" />
+            </svg>
+            <span class="sb-wordmark">Edvin Solar</span>
+          </div>
+          <div class="sb-tagline">Prospect Agent System</div>
+        </div>
+        <div class="sb-section">Workspace</div>
+        <ul class="nav" role="list">
+          <li>
+            <a href="../2026-04-21-dashboard-action/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="9" rx="1" />
+                <rect x="14" y="3" width="7" height="5" rx="1" />
+                <rect x="14" y="12" width="7" height="9" rx="1" />
+                <rect x="3" y="16" width="7" height="5" rx="1" /></svg
+              ><span>Dashboard</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-prospekt/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+              ><span>Prospekt</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-sok/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" /></svg
+              ><span>Sök</span></a
+            >
+          </li>
+          <li>
+            <a href="#detektion" aria-current="page"
+              ><svg viewBox="0 0 24 24">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                <circle cx="12" cy="12" r="1.5" />
+                <path d="M18 12a6 6 0 0 1-12 0 6 6 0 0 1 12 0z" /></svg
+              ><span>Detektion</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-karta/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z" />
+                <path d="M9 3v15" />
+                <path d="M15 6v15" /></svg
+              ><span>Karta</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-agenter/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M12 2v4" />
+                <rect x="4" y="6" width="16" height="12" rx="2" />
+                <path d="M2 14h2" />
+                <path d="M20 14h2" />
+                <circle cx="9" cy="12" r="1" />
+                <circle cx="15" cy="12" r="1" />
+                <path d="M9 16h6" /></svg
+              ><span>Agenter</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-berikning/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M12 3l1.9 4.9L19 10l-5.1 2.1L12 17l-1.9-4.9L5 10l5.1-2.1L12 3z" />
+                <path d="M19 17l.9 2.1L22 20l-2.1.9L19 23l-.9-2.1L16 20l2.1-.9L19 17z" />
+                <path d="M5 3l.6 1.4L7 5l-1.4.6L5 7l-.6-1.4L3 5l1.4-.6L5 3z" /></svg
+              ><span>Berikning</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-installningar/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+                /></svg
+              ><span>Inställningar</span></a
+            >
+          </li>
+        </ul>
+        <div class="sb-user" role="button" tabindex="0">
+          <div class="sb-avatar">EP</div>
+          <div class="sb-user-meta">
+            <div class="sb-user-name">Edvin Pierre</div>
+            <div class="sb-user-email">edvin.pierre03@gmail.com</div>
+          </div>
+          <svg class="sb-chev" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6" /></svg>
+        </div>
+        <div class="sb-version">v0.1.0</div>
+      </aside>
+
+      <div class="main-col">
+        <header class="topbar">
+          <div class="breadcrumb">
+            <span>Arbetsyta</span><span class="sep">/</span><span class="current">Detektion</span>
+          </div>
+          <button class="cmdk">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" /></svg
+            ><span>Sök adress, stad, status…</span><span class="kbd">⌘K</span>
+          </button>
+          <div class="topbar-right">
+            <button class="icon-btn" aria-label="Notiser">
+              <svg viewBox="0 0 24 24">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+            </button>
+            <div class="tb-avatar">EP</div>
+          </div>
+        </header>
+
+        <main>
+          <div class="page-head">
+            <h1>Paneldetektion</h1>
+            <div class="meta">9 SENASTE · 61 I KÖ</div>
+          </div>
+          <p class="lede">
+            Resultat från takanalys och panelförslag. Bounding-box ritas över takets kontur med
+            identifierade paneler markerade. Konfidensen är en sammanvägning av segmentering och
+            geometrisk rimlighet.
+          </p>
+
+          <!-- Run bar -->
+          <section class="runbar">
+            <div>
+              <div class="q">Nästa körning</div>
+              <h3>Kör paneldetektion på kön</h3>
+              <p>
+                61 prospekt väntar. Estimerad tid ~4 min. Endast gratis-API:er (Nominatim + PVGIS).
+              </p>
+            </div>
+            <div class="stats">
+              <div><span class="l">Kö</span><span class="v tabular">61</span></div>
+              <div><span class="l">Snitt-konf.</span><span class="v tabular">82%</span></div>
+              <div><span class="l">Kostnad</span><span class="v tabular">0 kr</span></div>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <button class="btn" aria-label="Inställningar">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8" />
+                  <path d="M4.6 9a1.7 1.7 0 0 0-.3-1.8" />
+                </svg>
+                Inställningar
+              </button>
+              <button class="btn primary">
+                <svg viewBox="0 0 24 24">
+                  <polygon points="5,3 19,12 5,21" fill="currentColor" />
+                </svg>
+                Kör nu
+              </button>
+            </div>
+          </section>
+
+          <!-- Detection grid -->
+          <section class="grid" aria-label="Detekteringar">
+            <article class="dcard">
+              <div class="frame">
+                <span class="tag">#4821</span>
+                <div class="roof"></div>
+                <div
+                  class="bb"
+                  data-label="TAK 148m²"
+                  style="left: 22%; top: 28%; width: 56%; height: 44%"
+                ></div>
+                <div
+                  class="bb"
+                  data-label=""
+                  style="left: 28%; top: 34%; width: 44%; height: 18%; border-style: dashed"
+                ></div>
+              </div>
+              <div class="body">
+                <h4>Sveagatan 12</h4>
+                <div class="city">Falun · 791 47</div>
+                <div class="conf hi">
+                  <span class="bar"><span style="width: 94%"></span></span
+                  ><strong>94%</strong>konfidens
+                </div>
+                <div class="metrics">
+                  <div><span class="l">Paneler</span><span class="v">24 st</span></div>
+                  <div><span class="l">Takvinkel</span><span class="v">34°</span></div>
+                  <div><span class="l">Area</span><span class="v">148 m²</span></div>
+                  <div><span class="l">Azimut</span><span class="v">182°</span></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="dcard">
+              <div class="frame">
+                <span class="tag">#4820</span>
+                <div
+                  class="roof"
+                  style="left: 14%; top: 28%; width: 72%; transform: skewX(2deg)"
+                ></div>
+                <div
+                  class="bb"
+                  data-label="TAK 172m²"
+                  style="left: 18%; top: 30%; width: 64%; height: 40%"
+                ></div>
+                <div
+                  class="bb"
+                  data-label=""
+                  style="left: 24%; top: 36%; width: 52%; height: 16%; border-style: dashed"
+                ></div>
+              </div>
+              <div class="body">
+                <h4>Kopparbergsvägen 44</h4>
+                <div class="city">Borlänge · 784 31</div>
+                <div class="conf hi">
+                  <span class="bar"><span style="width: 91%"></span></span
+                  ><strong>91%</strong>konfidens
+                </div>
+                <div class="metrics">
+                  <div><span class="l">Paneler</span><span class="v">28 st</span></div>
+                  <div><span class="l">Takvinkel</span><span class="v">38°</span></div>
+                  <div><span class="l">Area</span><span class="v">172 m²</span></div>
+                  <div><span class="l">Azimut</span><span class="v">175°</span></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="dcard">
+              <div class="frame">
+                <span class="tag">#4819</span>
+                <div
+                  class="roof"
+                  style="left: 20%; top: 24%; width: 60%; height: 60%; transform: skewX(-6deg)"
+                ></div>
+                <div
+                  class="bb"
+                  data-label="TAK 121m²"
+                  style="left: 24%; top: 28%; width: 52%; height: 48%"
+                ></div>
+                <div
+                  class="bb"
+                  data-label=""
+                  style="left: 32%; top: 36%; width: 36%; height: 18%; border-style: dashed"
+                ></div>
+              </div>
+              <div class="body">
+                <h4>Storgatan 8</h4>
+                <div class="city">Ludvika · 771 30</div>
+                <div class="conf hi">
+                  <span class="bar"><span style="width: 89%"></span></span
+                  ><strong>89%</strong>konfidens
+                </div>
+                <div class="metrics">
+                  <div><span class="l">Paneler</span><span class="v">20 st</span></div>
+                  <div><span class="l">Takvinkel</span><span class="v">32°</span></div>
+                  <div><span class="l">Area</span><span class="v">121 m²</span></div>
+                  <div><span class="l">Azimut</span><span class="v">190°</span></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="dcard">
+              <div class="frame">
+                <span class="tag">#4818</span>
+                <div
+                  class="roof"
+                  style="left: 16%; top: 26%; width: 68%; height: 52%; transform: skewX(3deg)"
+                ></div>
+                <div
+                  class="bb"
+                  data-label="TAK 134m²"
+                  style="left: 20%; top: 30%; width: 60%; height: 42%"
+                ></div>
+                <div
+                  class="bb"
+                  data-label=""
+                  style="left: 28%; top: 36%; width: 44%; height: 18%; border-style: dashed"
+                ></div>
+              </div>
+              <div class="body">
+                <h4>Östermalmsgatan 8</h4>
+                <div class="city">Falun · 791 46</div>
+                <div class="conf hi">
+                  <span class="bar"><span style="width: 87%"></span></span
+                  ><strong>87%</strong>konfidens
+                </div>
+                <div class="metrics">
+                  <div><span class="l">Paneler</span><span class="v">22 st</span></div>
+                  <div><span class="l">Takvinkel</span><span class="v">41°</span></div>
+                  <div><span class="l">Area</span><span class="v">134 m²</span></div>
+                  <div><span class="l">Azimut</span><span class="v">168°</span></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="dcard">
+              <div class="frame">
+                <span class="tag">#4817</span>
+                <div
+                  class="roof"
+                  style="left: 22%; top: 30%; width: 56%; height: 48%; transform: skewX(-2deg)"
+                ></div>
+                <div
+                  class="bb"
+                  data-label="TAK 142m²"
+                  style="left: 24%; top: 32%; width: 52%; height: 40%"
+                ></div>
+                <div
+                  class="bb"
+                  data-label=""
+                  style="left: 30%; top: 38%; width: 40%; height: 16%; border-style: dashed"
+                ></div>
+              </div>
+              <div class="body">
+                <h4>Björnvägen 3</h4>
+                <div class="city">Borlänge · 784 62</div>
+                <div class="conf mid">
+                  <span class="bar"><span style="width: 78%"></span></span
+                  ><strong>78%</strong>konfidens
+                </div>
+                <div class="metrics">
+                  <div><span class="l">Paneler</span><span class="v">23 st</span></div>
+                  <div><span class="l">Takvinkel</span><span class="v">36°</span></div>
+                  <div><span class="l">Area</span><span class="v">142 m²</span></div>
+                  <div><span class="l">Azimut</span><span class="v">180°</span></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="dcard">
+              <div class="frame">
+                <span class="tag">#4816</span>
+                <div
+                  class="roof"
+                  style="left: 24%; top: 28%; width: 52%; height: 48%; transform: skewX(5deg)"
+                ></div>
+                <div
+                  class="bb"
+                  data-label="TAK 98m²"
+                  style="left: 26%; top: 30%; width: 48%; height: 42%"
+                ></div>
+                <div
+                  class="bb"
+                  data-label=""
+                  style="left: 34%; top: 38%; width: 32%; height: 18%; border-style: dashed"
+                ></div>
+              </div>
+              <div class="body">
+                <h4>Kyrkogatan 19</h4>
+                <div class="city">Hedemora · 776 30</div>
+                <div class="conf mid">
+                  <span class="bar"><span style="width: 74%"></span></span
+                  ><strong>74%</strong>konfidens
+                </div>
+                <div class="metrics">
+                  <div><span class="l">Paneler</span><span class="v">16 st</span></div>
+                  <div><span class="l">Takvinkel</span><span class="v">33°</span></div>
+                  <div><span class="l">Area</span><span class="v">98 m²</span></div>
+                  <div><span class="l">Azimut</span><span class="v">195°</span></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="dcard">
+              <div class="frame">
+                <span class="tag">#4815</span>
+                <div
+                  class="roof"
+                  style="left: 18%; top: 26%; width: 64%; height: 54%; transform: skewX(-4deg)"
+                ></div>
+                <div
+                  class="bb"
+                  data-label="TAK 89m²"
+                  style="left: 22%; top: 30%; width: 56%; height: 44%"
+                ></div>
+                <div
+                  class="bb"
+                  data-label=""
+                  style="left: 30%; top: 38%; width: 40%; height: 18%; border-style: dashed"
+                ></div>
+              </div>
+              <div class="body">
+                <h4>Tegelvägen 7</h4>
+                <div class="city">Falun · 791 32</div>
+                <div class="conf mid">
+                  <span class="bar"><span style="width: 71%"></span></span
+                  ><strong>71%</strong>konfidens
+                </div>
+                <div class="metrics">
+                  <div><span class="l">Paneler</span><span class="v">14 st</span></div>
+                  <div><span class="l">Takvinkel</span><span class="v">31°</span></div>
+                  <div><span class="l">Area</span><span class="v">89 m²</span></div>
+                  <div><span class="l">Azimut</span><span class="v">170°</span></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="dcard">
+              <div class="frame">
+                <span class="tag">#4814</span>
+                <div
+                  class="roof"
+                  style="left: 20%; top: 30%; width: 60%; height: 48%; transform: skewX(7deg)"
+                ></div>
+                <div
+                  class="bb"
+                  data-label="TAK 116m²"
+                  style="left: 22%; top: 32%; width: 56%; height: 42%"
+                ></div>
+                <div
+                  class="bb"
+                  data-label=""
+                  style="left: 32%; top: 40%; width: 36%; height: 18%; border-style: dashed"
+                ></div>
+              </div>
+              <div class="body">
+                <h4>Hantverkaregatan 22</h4>
+                <div class="city">Säter · 783 30</div>
+                <div class="conf mid">
+                  <span class="bar"><span style="width: 68%"></span></span
+                  ><strong>68%</strong>konfidens
+                </div>
+                <div class="metrics">
+                  <div><span class="l">Paneler</span><span class="v">18 st</span></div>
+                  <div><span class="l">Takvinkel</span><span class="v">39°</span></div>
+                  <div><span class="l">Area</span><span class="v">116 m²</span></div>
+                  <div><span class="l">Azimut</span><span class="v">178°</span></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="dcard">
+              <div class="frame">
+                <span class="tag">#4813</span>
+                <div
+                  class="roof"
+                  style="left: 26%; top: 32%; width: 48%; height: 40%; transform: skewX(-8deg)"
+                ></div>
+                <div
+                  class="bb"
+                  data-label="TAK 62m²"
+                  style="left: 28%; top: 34%; width: 44%; height: 36%"
+                ></div>
+              </div>
+              <div class="body">
+                <h4>Solvägen 6</h4>
+                <div class="city">Säter · 783 32</div>
+                <div class="conf lo">
+                  <span class="bar"><span style="width: 52%"></span></span
+                  ><strong>52%</strong>konfidens
+                </div>
+                <div class="metrics">
+                  <div><span class="l">Paneler</span><span class="v">9 st</span></div>
+                  <div><span class="l">Takvinkel</span><span class="v">28°</span></div>
+                  <div><span class="l">Area</span><span class="v">62 m²</span></div>
+                  <div><span class="l">Azimut</span><span class="v">215°</span></div>
+                </div>
+              </div>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

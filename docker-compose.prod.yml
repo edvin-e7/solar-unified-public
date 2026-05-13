@@ -1,0 +1,52 @@
+# Production docker-compose — for self-hosted Mac Mini / Linux server deploys.
+#
+# Differences from docker-compose.yml (dev):
+#   - No volume-mounts (image is self-contained, no host hot-reload)
+#   - No --reload flag on uvicorn
+#   - Frontend served as static dist via backend's StaticFiles (or nginx sidecar)
+#   - Restart policy: unless-stopped (survives reboot)
+#   - Image-build-args: production env baked in
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+#   docker compose -f docker-compose.prod.yml logs -f backend
+#
+# Prerequisites on host:
+#   - Ollama daemon running on host:11434 (NOT in this compose — model-files
+#     are too big to ship in a container)
+#   - .env.production file with real credentials (NO placeholders)
+
+services:
+  backend:
+    build: ./backend
+    image: solar-unified:prod
+    container_name: solar-backend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"  # bind localhost only; expose via reverse-proxy
+    env_file: .env.production
+    volumes:
+      - ./backend/data:/app/data           # prospects.db + images persist
+      - ./backend/prompts/learned:/app/prompts/learned  # journal persists
+    environment:
+      OLLAMA_HOST: http://host.docker.internal:11434
+      LLM_PROVIDER: ollama
+      DETECTION_BACKEND: moondream
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health',timeout=3).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: solar-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    env_file: .env.production  # needs TUNNEL_TOKEN
+    depends_on:
+      backend:
+        condition: service_healthy

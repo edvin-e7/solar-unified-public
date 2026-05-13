@@ -1,0 +1,29 @@
+.env
+node_modules/
+dist/
+release/
+__pycache__/
+*.pyc
+backend/data/
+backend/images/
+backend/reports/
+backend/history/
+# learned/ filer (issue_ledger.json, journal.jsonl, errors.jsonl, summary.md,
+# prompts_log.jsonl) committed som source-of-truth per CLAUDE.md.
+# Prospect-namn i prompts_log.jsonl är OK i privat repo (Edvin 2026-05-12).
+# Om repot någonsin görs publikt: STOP — scrub prompts_log.jsonl först.
+frontend/android/build/
+frontend/android/.gradle/
+frontend/android/app/build/
+frontend/ios/build/
+frontend/ios/Pods/
+.vite/
+.worktrees/
+.venv/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+.tmp/

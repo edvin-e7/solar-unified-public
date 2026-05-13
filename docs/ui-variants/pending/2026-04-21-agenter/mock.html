@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <title>Agenter — leaderboard (mock)</title>
+    <style>
+      :root {
+        --paper: #f5f1ea;
+        --paper-tint: #ebe5d9;
+        --ink: #0d1218;
+        --ink-80: rgba(13, 18, 24, 0.8);
+        --ink-60: rgba(13, 18, 24, 0.6);
+        --ink-40: rgba(13, 18, 24, 0.4);
+        --ink-20: rgba(13, 18, 24, 0.2);
+        --rule: rgba(13, 18, 24, 0.12);
+        --amber: #d06e29;
+        --forest: #2b4f3c;
+        --stone: #8a8780;
+        --barn: #a23434;
+        --leaf: #c69a4d;
+        --azure: #2f5ec9;
+
+        --sb-bg: #1a1a24;
+        --sb-edge: rgba(255, 255, 255, 0.06);
+        --sb-text: rgba(255, 255, 255, 0.72);
+        --sb-text-strong: #f2ece0;
+        --sb-icon: rgba(255, 255, 255, 0.55);
+        --sb-hover: rgba(255, 255, 255, 0.05);
+        --sb-active: rgba(255, 255, 255, 0.04);
+        --sb-muted: rgba(255, 255, 255, 0.4);
+
+        --font-display: "GT Alpina", "Playfair Display", "Recoleta", Georgia, serif;
+        --font-body: "Inter", "Public Sans", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", "Berkeley Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "tnum", "ss01", "cv11";
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      :focus-visible {
+        outline: 2px solid var(--azure);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 248px 1fr;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background: var(--sb-bg);
+        color: var(--sb-text);
+        border-right: 1px solid var(--sb-edge);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+      }
+      .sb-head {
+        padding: 20px 16px 16px;
+        border-bottom: 1px solid var(--sb-edge);
+      }
+      .sb-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-logo {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+      }
+      .sb-wordmark {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: var(--sb-text-strong);
+      }
+      .sb-tagline {
+        margin-top: 8px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+      .sb-section {
+        padding: 12px 16px 6px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+      .nav {
+        list-style: none;
+        padding: 0 8px;
+        margin: 0;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .nav::-webkit-scrollbar {
+        width: 6px;
+      }
+      .nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+      }
+      .nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 14px;
+        font-weight: 450;
+        color: var(--sb-text);
+        border-left: 2px solid transparent;
+        border-radius: 2px;
+        transition:
+          background 120ms ease,
+          color 120ms ease;
+      }
+      .nav a svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        color: var(--sb-icon);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: 0 0 16px;
+        transition: color 120ms ease;
+      }
+      .nav a:hover {
+        background: var(--sb-hover);
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a:hover svg {
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a[aria-current="page"] {
+        background: var(--sb-active);
+        border-left-color: var(--amber);
+        color: var(--sb-text-strong);
+      }
+      .nav a[aria-current="page"] svg {
+        color: var(--amber);
+      }
+      .sb-user {
+        border-top: 1px solid var(--sb-edge);
+        padding: 12px 16px 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        flex: 0 0 32px;
+      }
+      .sb-user-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .sb-user-name {
+        font-size: 14px;
+        color: var(--sb-text-strong);
+        line-height: 1.2;
+      }
+      .sb-user-email {
+        font-size: 11px;
+        color: var(--sb-muted);
+        line-height: 1.2;
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sb-chev {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        color: var(--sb-muted);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .sb-version {
+        padding: 4px 16px 12px;
+        text-align: center;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.25);
+        letter-spacing: 0.04em;
+      }
+
+      /* Topbar */
+      .main-col {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .topbar {
+        height: 48px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--paper);
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        gap: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .breadcrumb {
+        font-size: 12px;
+        color: var(--ink-60);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .breadcrumb .sep {
+        color: var(--ink-20);
+      }
+      .breadcrumb .current {
+        color: var(--ink);
+      }
+      .cmdk {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        background: var(--paper);
+        color: var(--ink-60);
+        font-size: 12px;
+        min-width: 320px;
+        max-width: 420px;
+        margin: 0 auto;
+        cursor: pointer;
+      }
+      .cmdk:hover {
+        border-color: var(--ink-40);
+      }
+      .cmdk svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .cmdk .kbd {
+        margin-left: auto;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 1px 6px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        color: var(--ink-60);
+        background: var(--paper-tint);
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+      }
+      .icon-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 0;
+        color: var(--ink-60);
+        cursor: pointer;
+        border-radius: 2px;
+      }
+      .icon-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .icon-btn:hover {
+        background: var(--paper-tint);
+        color: var(--ink);
+      }
+      .tb-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      main {
+        padding: 40px 40px 48px;
+        max-width: 1440px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .page-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+      }
+      .page-head h1 {
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 400;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+      }
+      .page-head .meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+      }
+      .lede {
+        color: var(--ink-80);
+        font-size: 16px;
+        line-height: 1.6;
+        max-width: 62ch;
+        margin-bottom: 32px;
+      }
+
+      /* Leaderboard */
+      .lb {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-bottom: 32px;
+      }
+      .lb table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      .lb thead th {
+        text-align: left;
+        font-weight: 500;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-60);
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--rule);
+        white-space: nowrap;
+      }
+      .lb tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--rule);
+        vertical-align: middle;
+      }
+      .lb tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .lb tbody tr:hover {
+        background: var(--paper-tint);
+      }
+      .rank {
+        font-family: var(--font-display);
+        font-size: 18px;
+        color: var(--amber);
+        font-variant-numeric: tabular-nums;
+        width: 24px;
+        font-weight: 500;
+      }
+      .agent-name {
+        font-family: var(--font-body);
+        font-weight: 500;
+        letter-spacing: -0.005em;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .live {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        position: relative;
+      }
+      .live.g {
+        background: var(--forest);
+      }
+      .live.y {
+        background: var(--leaf);
+      }
+      .live.r {
+        background: var(--barn);
+      }
+      .live.s {
+        background: var(--stone);
+      }
+      .live.g::before {
+        content: "";
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 1.5px solid var(--forest);
+        opacity: 0.35;
+        animation: pulse 2.2s ease-out infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(0.6);
+          opacity: 0.55;
+        }
+        80%,
+        100% {
+          transform: scale(1.4);
+          opacity: 0;
+        }
+      }
+      .lb td.num {
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+        text-align: right;
+        white-space: nowrap;
+      }
+      .lb td.mono {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--ink-80);
+        font-variant-numeric: tabular-nums;
+      }
+      .lb td.success {
+        font-variant-numeric: tabular-nums;
+      }
+      .success .bar {
+        display: inline-block;
+        width: 64px;
+        height: 3px;
+        background: var(--rule);
+        margin-right: 8px;
+        vertical-align: 2px;
+        position: relative;
+        border-radius: 1px;
+        overflow: hidden;
+      }
+      .success .bar > span {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        background: var(--forest);
+      }
+      .success.warn .bar > span {
+        background: var(--leaf);
+      }
+      .success.bad .bar > span {
+        background: var(--barn);
+      }
+      .rail {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-60);
+        padding: 10px 16px;
+        background: var(--paper-tint);
+        border-top: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* Journal */
+      .journal {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .journal h3 {
+        padding: 16px 20px;
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 400;
+        letter-spacing: -0.005em;
+        border-bottom: 1px solid var(--rule);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .journal h3 .tag {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--forest);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 400;
+      }
+      .journal h3 .tag::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--forest);
+      }
+      .log {
+        padding: 16px 20px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        line-height: 1.65;
+        color: var(--ink-80);
+      }
+      .log .line {
+        display: grid;
+        grid-template-columns: 88px 90px 1fr;
+        gap: 16px;
+        padding: 3px 0;
+        font-variant-numeric: tabular-nums;
+      }
+      .log .t {
+        color: var(--ink-60);
+      }
+      .log .a {
+        color: var(--ink);
+      }
+      .log .m {
+        color: var(--ink-80);
+      }
+      .log .lvl {
+        display: inline-block;
+        padding: 0 6px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--forest);
+        border-color: var(--forest);
+      }
+      .log .lvl.warn {
+        color: var(--leaf);
+        border-color: var(--leaf);
+      }
+      .log .lvl.err {
+        color: var(--barn);
+        border-color: var(--barn);
+      }
+      .log .m mark {
+        background: transparent;
+        color: var(--amber);
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" aria-label="Primär navigation">
+        <div class="sb-head">
+          <div class="sb-brand">
+            <svg class="sb-logo" viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="10" cy="7" r="2.6" fill="#d06e29" />
+              <path d="M1.5 15.5 L10 8.5 L18.5 15.5 Z" fill="#d06e29" opacity="0.9" />
+              <path d="M4 15.5 L10 10.5 L16 15.5 Z" fill="#1a1a24" />
+            </svg>
+            <span class="sb-wordmark">Edvin Solar</span>
+          </div>
+          <div class="sb-tagline">Prospect Agent System</div>
+        </div>
+        <div class="sb-section">Workspace</div>
+        <ul class="nav" role="list">
+          <li>
+            <a href="../2026-04-21-dashboard-action/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="9" rx="1" />
+                <rect x="14" y="3" width="7" height="5" rx="1" />
+                <rect x="14" y="12" width="7" height="9" rx="1" />
+                <rect x="3" y="16" width="7" height="5" rx="1" /></svg
+              ><span>Dashboard</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-prospekt/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+              ><span>Prospekt</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-sok/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" /></svg
+              ><span>Sök</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-detektion/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                <circle cx="12" cy="12" r="1.5" />
+                <path d="M18 12a6 6 0 0 1-12 0 6 6 0 0 1 12 0z" /></svg
+              ><span>Detektion</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-karta/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z" />
+                <path d="M9 3v15" />
+                <path d="M15 6v15" /></svg
+              ><span>Karta</span></a
+            >
+          </li>
+          <li>
+            <a href="#agenter" aria-current="page"
+              ><svg viewBox="0 0 24 24">
+                <path d="M12 2v4" />
+                <rect x="4" y="6" width="16" height="12" rx="2" />
+                <path d="M2 14h2" />
+                <path d="M20 14h2" />
+                <circle cx="9" cy="12" r="1" />
+                <circle cx="15" cy="12" r="1" />
+                <path d="M9 16h6" /></svg
+              ><span>Agenter</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-berikning/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M12 3l1.9 4.9L19 10l-5.1 2.1L12 17l-1.9-4.9L5 10l5.1-2.1L12 3z" />
+                <path d="M19 17l.9 2.1L22 20l-2.1.9L19 23l-.9-2.1L16 20l2.1-.9L19 17z" />
+                <path d="M5 3l.6 1.4L7 5l-1.4.6L5 7l-.6-1.4L3 5l1.4-.6L5 3z" /></svg
+              ><span>Berikning</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-installningar/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+                /></svg
+              ><span>Inställningar</span></a
+            >
+          </li>
+        </ul>
+        <div class="sb-user" role="button" tabindex="0">
+          <div class="sb-avatar">EP</div>
+          <div class="sb-user-meta">
+            <div class="sb-user-name">Edvin Pierre</div>
+            <div class="sb-user-email">edvin.pierre03@gmail.com</div>
+          </div>
+          <svg class="sb-chev" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6" /></svg>
+        </div>
+        <div class="sb-version">v0.1.0</div>
+      </aside>
+
+      <div class="main-col">
+        <header class="topbar">
+          <div class="breadcrumb">
+            <span>Arbetsyta</span><span class="sep">/</span><span class="current">Agenter</span>
+          </div>
+          <button class="cmdk">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" /></svg
+            ><span>Sök adress, stad, status…</span><span class="kbd">⌘K</span>
+          </button>
+          <div class="topbar-right">
+            <button class="icon-btn" aria-label="Notiser">
+              <svg viewBox="0 0 24 24">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+            </button>
+            <div class="tb-avatar">EP</div>
+          </div>
+        </header>
+
+        <main>
+          <div class="page-head">
+            <h1>Agenter</h1>
+            <div class="meta">10 AGENTER · 347 KÖRNINGAR 24H</div>
+          </div>
+          <p class="lede">
+            Prestanda över alla agenter senaste 24 timmarna. Rangordnat på sammanvägd poäng (lyckade
+            körningar × konfidens). Grön puls = aktiv, gul = idle &gt; 15 min, röd = senaste körning
+            misslyckades.
+          </p>
+
+          <div class="rail">
+            RANKAT: SAMMANVÄGD POÄNG · 24H FÖNSTER · UPPDATERAS VAR 60:E SEKUND
+          </div>
+          <div class="lb">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 56px">#</th>
+                  <th>Agent</th>
+                  <th>Status</th>
+                  <th style="text-align: right">Körningar 24h</th>
+                  <th>Success</th>
+                  <th style="text-align: right">Snitt-kostnad</th>
+                  <th>Senaste körning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="rank">1</span></td>
+                  <td><span class="agent-name">coordinator</span></td>
+                  <td><span class="live g"></span> aktiv</td>
+                  <td class="num">184</td>
+                  <td class="success">
+                    <span class="bar"><span style="width: 98%"></span></span>98,4 %
+                  </td>
+                  <td class="num">0,00 kr</td>
+                  <td class="mono">14:31:08</td>
+                </tr>
+                <tr>
+                  <td><span class="rank">2</span></td>
+                  <td><span class="agent-name">piifilter</span></td>
+                  <td><span class="live g"></span> aktiv</td>
+                  <td class="num">162</td>
+                  <td class="success">
+                    <span class="bar"><span style="width: 96%"></span></span>96,3 %
+                  </td>
+                  <td class="num">0,00 kr</td>
+                  <td class="mono">14:30:54</td>
+                </tr>
+                <tr>
+                  <td><span class="rank">3</span></td>
+                  <td><span class="agent-name">verification</span></td>
+                  <td><span class="live g"></span> aktiv</td>
+                  <td class="num">148</td>
+                  <td class="success">
+                    <span class="bar"><span style="width: 94%"></span></span>94,0 %
+                  </td>
+                  <td class="num">0,01 kr</td>
+                  <td class="mono">14:30:22</td>
+                </tr>
+                <tr>
+                  <td><span class="rank">4</span></td>
+                  <td><span class="agent-name">scoring</span></td>
+                  <td><span class="live g"></span> aktiv</td>
+                  <td class="num">124</td>
+                  <td class="success">
+                    <span class="bar"><span style="width: 92%"></span></span>92,1 %
+                  </td>
+                  <td class="num">0,02 kr</td>
+                  <td class="mono">14:28:15</td>
+                </tr>
+                <tr>
+                  <td><span class="rank">5</span></td>
+                  <td><span class="agent-name">detection</span></td>
+                  <td><span class="live g"></span> aktiv</td>
+                  <td class="num">91</td>
+                  <td class="success">
+                    <span class="bar"><span style="width: 89%"></span></span>89,0 %
+                  </td>
+                  <td class="num">0,04 kr</td>
+                  <td class="mono">14:31:41</td>
+                </tr>
+                <tr>
+                  <td><span class="rank">6</span></td>
+                  <td><span class="agent-name">quality</span></td>
+                  <td><span class="live g"></span> aktiv</td>
+                  <td class="num">78</td>
+                  <td class="success warn">
+                    <span class="bar"><span style="width: 85%"></span></span>85,9 %
+                  </td>
+                  <td class="num">0,01 kr</td>
+                  <td class="mono">14:27:04</td>
+                </tr>
+                <tr>
+                  <td><span class="rank">7</span></td>
+                  <td><span class="agent-name">pitch</span></td>
+                  <td><span class="live y"></span> idle</td>
+                  <td class="num">56</td>
+                  <td class="success warn">
+                    <span class="bar"><span style="width: 81%"></span></span>80,4 %
+                  </td>
+                  <td class="num">0,09 kr</td>
+                  <td class="mono">14:14:38</td>
+                </tr>
+                <tr>
+                  <td><span class="rank">8</span></td>
+                  <td><span class="agent-name">pattern</span></td>
+                  <td><span class="live y"></span> idle</td>
+                  <td class="num">42</td>
+                  <td class="success warn">
+                    <span class="bar"><span style="width: 78%"></span></span>78,6 %
+                  </td>
+                  <td class="num">0,03 kr</td>
+                  <td class="mono">14:12:11</td>
+                </tr>
+                <tr>
+                  <td><span class="rank">9</span></td>
+                  <td><span class="agent-name">data_gatherer</span></td>
+                  <td><span class="live g"></span> aktiv</td>
+                  <td class="num">38</td>
+                  <td class="success warn">
+                    <span class="bar"><span style="width: 76%"></span></span>76,3 %
+                  </td>
+                  <td class="num">0,00 kr</td>
+                  <td class="mono">14:29:17</td>
+                </tr>
+                <tr>
+                  <td><span class="rank">10</span></td>
+                  <td><span class="agent-name">ui_design</span></td>
+                  <td><span class="live r"></span> fel</td>
+                  <td class="num">14</td>
+                  <td class="success bad">
+                    <span class="bar"><span style="width: 64%"></span></span>64,2 %
+                  </td>
+                  <td class="num">0,11 kr</td>
+                  <td class="mono">13:58:42</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Journal tail -->
+          <section class="journal" aria-label="Journal (senaste händelser)">
+            <h3>Journal · senaste 15 <span class="tag">live</span></h3>
+            <div class="log" role="log" aria-live="polite">
+              <div class="line">
+                <span class="t">14:31:41</span><span class="a">detection</span
+                ><span class="m"
+                  ><span class="lvl">ok</span> Sveagatan 12 · konfidens <mark>0.94</mark> · 24
+                  paneler</span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:31:08</span><span class="a">coordinator</span
+                ><span class="m"><span class="lvl">ok</span> dispatch batch-17 → 23 jobb</span>
+              </div>
+              <div class="line">
+                <span class="t">14:30:54</span><span class="a">piifilter</span
+                ><span class="m"
+                  ><span class="lvl">ok</span> skubba telefon · 12 fält · 0 läckor</span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:30:22</span><span class="a">verification</span
+                ><span class="m"
+                  ><span class="lvl">ok</span> CoVe 7/8 godkända · threshold 0.75</span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:29:17</span><span class="a">data_gatherer</span
+                ><span class="m"><span class="lvl">ok</span> hitta.se +14 rader · Borlänge</span>
+              </div>
+              <div class="line">
+                <span class="t">14:28:15</span><span class="a">scoring</span
+                ><span class="m"
+                  ><span class="lvl">ok</span> omvärdera 47 prospekt · snitt <mark>+0.3</mark></span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:27:04</span><span class="a">quality</span
+                ><span class="m"
+                  ><span class="lvl warn">warn</span> dubblettmisstanke · Lindvägen 18 ≈ Lindvägen
+                  18A</span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:24:18</span><span class="a">pattern</span
+                ><span class="m"
+                  ><span class="lvl">ok</span> insikt · söderläge +2.1 score i Falun-klustret</span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:22:44</span><span class="a">piifilter</span
+                ><span class="m"><span class="lvl">ok</span> maska personnummer · 3 fält</span>
+              </div>
+              <div class="line">
+                <span class="t">14:19:51</span><span class="a">detection</span
+                ><span class="m"
+                  ><span class="lvl warn">warn</span> Östermalmsg. 8 · retry 2/3 · rate-limit</span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:15:06</span><span class="a">verification</span
+                ><span class="m"
+                  ><span class="lvl warn">warn</span> CoVe under tröskel · score 0.71 &lt; 0.75 ·
+                  flaggad</span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:14:38</span><span class="a">pitch</span
+                ><span class="m"
+                  ><span class="lvl">ok</span> mall "grannargument" använd · 3 utkast</span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:12:11</span><span class="a">pattern</span
+                ><span class="m"
+                  ><span class="lvl">ok</span> korrelation · takvinkel 30–38° → score +1.4</span
+                >
+              </div>
+              <div class="line">
+                <span class="t">14:03:29</span><span class="a">scoring</span
+                ><span class="m"><span class="lvl">ok</span> ny viktfil · v12 promoted</span>
+              </div>
+              <div class="line">
+                <span class="t">13:58:42</span><span class="a">ui_design</span
+                ><span class="m"
+                  ><span class="lvl err">err</span> prompt-loader · saknar frontmatter fält
+                  "version"</span
+                >
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

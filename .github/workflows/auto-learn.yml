@@ -1,0 +1,37 @@
+name: Autonomous Learning Cycle
+
+on:
+  # Daily cron disabled until cove_vote() and verify_count are fixed (Fas 1
+  # of architecture review). Manual dispatch still allowed for one-off
+  # debugging runs. Restore the cron line after Fas 1 gates pass.
+  # schedule:
+  #   - cron: "0 0 * * *"  # Daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          cd backend
+          python3 -m pip install -q -r requirements.txt
+
+      - name: Run autonomous learning cycle
+        run: |
+          cd backend
+          python3 autonomous_learner.py > /tmp/cycle.log 2>&1
+          cat /tmp/cycle.log
+
+      - name: Commit journal updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Solar Learner Bot"
+          git add backend/prompts/learned/journal.jsonl backend/prompts/learned/summary.md
+          git diff --cached --quiet || git commit -m "refactor: autonomous learning cycle $(date -u +%Y-%m-%d)"
+          git push || echo "No changes to push"

@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <title>Berikning — API-grindar (mock)</title>
+    <style>
+      :root {
+        --paper: #f5f1ea;
+        --paper-tint: #ebe5d9;
+        --ink: #0d1218;
+        --ink-80: rgba(13, 18, 24, 0.8);
+        --ink-60: rgba(13, 18, 24, 0.6);
+        --ink-40: rgba(13, 18, 24, 0.4);
+        --ink-20: rgba(13, 18, 24, 0.2);
+        --rule: rgba(13, 18, 24, 0.12);
+        --amber: #d06e29;
+        --forest: #2b4f3c;
+        --stone: #8a8780;
+        --barn: #a23434;
+        --leaf: #c69a4d;
+        --azure: #2f5ec9;
+
+        --sb-bg: #1a1a24;
+        --sb-edge: rgba(255, 255, 255, 0.06);
+        --sb-text: rgba(255, 255, 255, 0.72);
+        --sb-text-strong: #f2ece0;
+        --sb-icon: rgba(255, 255, 255, 0.55);
+        --sb-hover: rgba(255, 255, 255, 0.05);
+        --sb-active: rgba(255, 255, 255, 0.04);
+        --sb-muted: rgba(255, 255, 255, 0.4);
+
+        --font-display: "GT Alpina", "Playfair Display", "Recoleta", Georgia, serif;
+        --font-body: "Inter", "Public Sans", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", "Berkeley Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "tnum", "ss01", "cv11";
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      :focus-visible {
+        outline: 2px solid var(--azure);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 248px 1fr;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background: var(--sb-bg);
+        color: var(--sb-text);
+        border-right: 1px solid var(--sb-edge);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+      }
+      .sb-head {
+        padding: 20px 16px 16px;
+        border-bottom: 1px solid var(--sb-edge);
+      }
+      .sb-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-logo {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+      }
+      .sb-wordmark {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: var(--sb-text-strong);
+      }
+      .sb-tagline {
+        margin-top: 8px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+      .sb-section {
+        padding: 12px 16px 6px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+      .nav {
+        list-style: none;
+        padding: 0 8px;
+        margin: 0;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .nav::-webkit-scrollbar {
+        width: 6px;
+      }
+      .nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+      }
+      .nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 14px;
+        font-weight: 450;
+        color: var(--sb-text);
+        border-left: 2px solid transparent;
+        border-radius: 2px;
+        transition:
+          background 120ms ease,
+          color 120ms ease;
+      }
+      .nav a svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        color: var(--sb-icon);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: 0 0 16px;
+        transition: color 120ms ease;
+      }
+      .nav a:hover {
+        background: var(--sb-hover);
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a:hover svg {
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a[aria-current="page"] {
+        background: var(--sb-active);
+        border-left-color: var(--amber);
+        color: var(--sb-text-strong);
+      }
+      .nav a[aria-current="page"] svg {
+        color: var(--amber);
+      }
+      .sb-user {
+        border-top: 1px solid var(--sb-edge);
+        padding: 12px 16px 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        flex: 0 0 32px;
+      }
+      .sb-user-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .sb-user-name {
+        font-size: 14px;
+        color: var(--sb-text-strong);
+        line-height: 1.2;
+      }
+      .sb-user-email {
+        font-size: 11px;
+        color: var(--sb-muted);
+        line-height: 1.2;
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sb-chev {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        color: var(--sb-muted);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .sb-version {
+        padding: 4px 16px 12px;
+        text-align: center;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.25);
+        letter-spacing: 0.04em;
+      }
+
+      /* Topbar */
+      .main-col {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .topbar {
+        height: 48px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--paper);
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        gap: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .breadcrumb {
+        font-size: 12px;
+        color: var(--ink-60);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .breadcrumb .sep {
+        color: var(--ink-20);
+      }
+      .breadcrumb .current {
+        color: var(--ink);
+      }
+      .cmdk {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        background: var(--paper);
+        color: var(--ink-60);
+        font-size: 12px;
+        min-width: 320px;
+        max-width: 420px;
+        margin: 0 auto;
+        cursor: pointer;
+      }
+      .cmdk:hover {
+        border-color: var(--ink-40);
+      }
+      .cmdk svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .cmdk .kbd {
+        margin-left: auto;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 1px 6px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        color: var(--ink-60);
+        background: var(--paper-tint);
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+      }
+      .icon-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 0;
+        color: var(--ink-60);
+        cursor: pointer;
+        border-radius: 2px;
+      }
+      .icon-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .icon-btn:hover {
+        background: var(--paper-tint);
+        color: var(--ink);
+      }
+      .tb-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      main {
+        padding: 40px 40px 48px;
+        max-width: 1280px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .page-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+      }
+      .page-head h1 {
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 400;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+      }
+      .page-head .meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+      }
+      .lede {
+        color: var(--ink-80);
+        font-size: 16px;
+        line-height: 1.6;
+        max-width: 62ch;
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: 400;
+        letter-spacing: -0.005em;
+        margin-bottom: 6px;
+      }
+      .section-sub {
+        font-size: 12px;
+        color: var(--ink-60);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 16px;
+      }
+      section.block {
+        margin-bottom: 48px;
+      }
+
+      /* Gate chips */
+      .gates {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .gate {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 2px;
+        padding: 16px 18px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+      }
+      .gate .name {
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 400;
+        letter-spacing: -0.005em;
+      }
+      .gate .meta {
+        font-size: 11px;
+        color: var(--ink-60);
+        margin-top: 2px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.04em;
+      }
+      .gate .state {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        padding: 4px 10px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        background: var(--paper);
+        white-space: nowrap;
+      }
+      .gate .state .d {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .gate.on {
+        border-left: 2px solid var(--forest);
+      }
+      .gate.on .state {
+        border-color: var(--forest);
+        color: var(--forest);
+      }
+      .gate.on .state .d {
+        background: var(--forest);
+      }
+      .gate.off {
+        border-left: 2px solid var(--stone);
+      }
+      .gate.off .name {
+        color: var(--ink-60);
+      }
+      .gate.off .state {
+        border-color: var(--stone);
+        color: var(--stone);
+      }
+      .gate.off .state .d {
+        background: var(--stone);
+      }
+      .gate .cost {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-60);
+        margin-top: 4px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* Cost panel */
+      .costs {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 2px;
+      }
+      .costs .cell {
+        padding: 20px 24px;
+        border-right: 1px solid var(--rule);
+      }
+      .costs .cell:last-child {
+        border-right: none;
+      }
+      .costs .l {
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+      .costs .v {
+        font-family: var(--font-body);
+        font-size: 26px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        color: var(--ink);
+        margin-top: 6px;
+        line-height: 1;
+        letter-spacing: -0.005em;
+      }
+      .costs .v.amber {
+        color: var(--amber);
+      }
+      .costs .trend {
+        margin-top: 6px;
+        font-size: 11px;
+        color: var(--ink-60);
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* Run panel */
+      .run {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 24px;
+        align-items: stretch;
+      }
+      .run .left {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-left: 3px solid var(--azure);
+        border-radius: 2px;
+        padding: 28px 32px;
+      }
+      .run .left h3 {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        margin-bottom: 8px;
+        line-height: 1.2;
+      }
+      .run .left p {
+        color: var(--ink-80);
+        font-size: 14px;
+        line-height: 1.55;
+        max-width: 54ch;
+      }
+      .run .left .row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--rule);
+        font-size: 13px;
+      }
+      .run .left .row:first-of-type {
+        margin-top: 20px;
+        border-top: 1px solid var(--rule);
+      }
+      .run .left .row:last-of-type {
+        border-bottom: none;
+      }
+      .run .left .row .l {
+        color: var(--ink-60);
+      }
+      .run .left .row .v {
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+      }
+      .run .left .cta {
+        margin-top: 20px;
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 40px;
+        padding: 0 20px;
+        background: var(--paper);
+        color: var(--ink);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        font-size: 14px;
+        cursor: pointer;
+        font-family: var(--font-body);
+      }
+      .btn:hover {
+        background: var(--paper-tint);
+        border-color: var(--ink-40);
+      }
+      .btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .btn.primary {
+        background: var(--azure);
+        color: #fff;
+        border-color: var(--azure);
+        font-weight: 500;
+        flex: 1;
+        justify-content: center;
+        height: 44px;
+        font-size: 15px;
+      }
+      .btn.primary:hover {
+        filter: brightness(1.05);
+      }
+
+      /* Dry run output */
+      .dry {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 2px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .dry-head {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--rule);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .dry-head h4 {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+      }
+      .dry-head .tag {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--forest);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .dry-head .tag::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--forest);
+      }
+      .dry pre {
+        flex: 1;
+        padding: 16px 20px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        line-height: 1.65;
+        color: var(--ink-80);
+        overflow: auto;
+        white-space: pre;
+        font-variant-numeric: tabular-nums;
+      }
+      .dry pre .k {
+        color: var(--ink);
+      }
+      .dry pre .s {
+        color: var(--forest);
+      }
+      .dry pre .n {
+        color: var(--amber);
+      }
+      .dry pre .c {
+        color: var(--ink-60);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" aria-label="Primär navigation">
+        <div class="sb-head">
+          <div class="sb-brand">
+            <svg class="sb-logo" viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="10" cy="7" r="2.6" fill="#d06e29" />
+              <path d="M1.5 15.5 L10 8.5 L18.5 15.5 Z" fill="#d06e29" opacity="0.9" />
+              <path d="M4 15.5 L10 10.5 L16 15.5 Z" fill="#1a1a24" />
+            </svg>
+            <span class="sb-wordmark">Edvin Solar</span>
+          </div>
+          <div class="sb-tagline">Prospect Agent System</div>
+        </div>
+        <div class="sb-section">Workspace</div>
+        <ul class="nav" role="list">
+          <li>
+            <a href="../2026-04-21-dashboard-action/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="9" rx="1" />
+                <rect x="14" y="3" width="7" height="5" rx="1" />
+                <rect x="14" y="12" width="7" height="9" rx="1" />
+                <rect x="3" y="16" width="7" height="5" rx="1" /></svg
+              ><span>Dashboard</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-prospekt/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+              ><span>Prospekt</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-sok/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" /></svg
+              ><span>Sök</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-detektion/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                <circle cx="12" cy="12" r="1.5" />
+                <path d="M18 12a6 6 0 0 1-12 0 6 6 0 0 1 12 0z" /></svg
+              ><span>Detektion</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-karta/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z" />
+                <path d="M9 3v15" />
+                <path d="M15 6v15" /></svg
+              ><span>Karta</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-agenter/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <path d="M12 2v4" />
+                <rect x="4" y="6" width="16" height="12" rx="2" />
+                <path d="M2 14h2" />
+                <path d="M20 14h2" />
+                <circle cx="9" cy="12" r="1" />
+                <circle cx="15" cy="12" r="1" />
+                <path d="M9 16h6" /></svg
+              ><span>Agenter</span></a
+            >
+          </li>
+          <li>
+            <a href="#berikning" aria-current="page"
+              ><svg viewBox="0 0 24 24">
+                <path d="M12 3l1.9 4.9L19 10l-5.1 2.1L12 17l-1.9-4.9L5 10l5.1-2.1L12 3z" />
+                <path d="M19 17l.9 2.1L22 20l-2.1.9L19 23l-.9-2.1L16 20l2.1-.9L19 17z" />
+                <path d="M5 3l.6 1.4L7 5l-1.4.6L5 7l-.6-1.4L3 5l1.4-.6L5 3z" /></svg
+              ><span>Berikning</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-installningar/mock.html"
+              ><svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+                /></svg
+              ><span>Inställningar</span></a
+            >
+          </li>
+        </ul>
+        <div class="sb-user" role="button" tabindex="0">
+          <div class="sb-avatar">EP</div>
+          <div class="sb-user-meta">
+            <div class="sb-user-name">Edvin Pierre</div>
+            <div class="sb-user-email">edvin.pierre03@gmail.com</div>
+          </div>
+          <svg class="sb-chev" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6" /></svg>
+        </div>
+        <div class="sb-version">v0.1.0</div>
+      </aside>
+
+      <div class="main-col">
+        <header class="topbar">
+          <div class="breadcrumb">
+            <span>Arbetsyta</span><span class="sep">/</span><span class="current">Berikning</span>
+          </div>
+          <button class="cmdk">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" /></svg
+            ><span>Sök adress, stad, status…</span><span class="kbd">⌘K</span>
+          </button>
+          <div class="topbar-right">
+            <button class="icon-btn" aria-label="Notiser">
+              <svg viewBox="0 0 24 24">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+            </button>
+            <div class="tb-avatar">EP</div>
+          </div>
+        </header>
+
+        <main>
+          <div class="page-head">
+            <h1>Berikning</h1>
+            <div class="meta">61 I KÖ · 6 KÄLLOR</div>
+          </div>
+          <p class="lede">
+            Berika prospekten med kontaktuppgifter, takdata och solpotential. Stäng av betalda
+            API:er när gratis räcker. Dry-run visar vad som skulle hända utan att anropa någonting.
+          </p>
+
+          <!-- Gates -->
+          <section class="block">
+            <h2 class="section-title">API-grindar</h2>
+            <div class="section-sub">6 källor · växla tillåtelse per källa</div>
+            <div class="gates">
+              <div class="gate on">
+                <div>
+                  <div class="name">Google Solar API</div>
+                  <div class="meta">ALLOW_GOOGLE_SOLAR_API</div>
+                  <div class="cost">0,08 kr / anrop</div>
+                </div>
+                <span class="state"><span class="d"></span>Tillåten</span>
+              </div>
+              <div class="gate on">
+                <div>
+                  <div class="name">Lantmäteriet</div>
+                  <div class="meta">ALLOW_LANTMATERIET</div>
+                  <div class="cost">0,00 kr · kvot 1000/d</div>
+                </div>
+                <span class="state"><span class="d"></span>Tillåten</span>
+              </div>
+              <div class="gate on">
+                <div>
+                  <div class="name">Hitta.se</div>
+                  <div class="meta">ALLOW_HITTA</div>
+                  <div class="cost">0,00 kr · HTTP</div>
+                </div>
+                <span class="state"><span class="d"></span>Tillåten</span>
+              </div>
+              <div class="gate off">
+                <div>
+                  <div class="name">Mrkoll.se</div>
+                  <div class="meta">ALLOW_MRKOLL</div>
+                  <div class="cost">0,00 kr · kräver Electron</div>
+                </div>
+                <span class="state"><span class="d"></span>Pausad</span>
+              </div>
+              <div class="gate on">
+                <div>
+                  <div class="name">SMHI</div>
+                  <div class="meta">ALLOW_SMHI</div>
+                  <div class="cost">0,00 kr · öppet API</div>
+                </div>
+                <span class="state"><span class="d"></span>Tillåten</span>
+              </div>
+              <div class="gate off">
+                <div>
+                  <div class="name">Metria</div>
+                  <div class="meta">ALLOW_METRIA</div>
+                  <div class="cost">0,42 kr / yta</div>
+                </div>
+                <span class="state"><span class="d"></span>Pausad</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Costs -->
+          <section class="block">
+            <h2 class="section-title">Kostnad föregående 24h</h2>
+            <div class="section-sub">Faktiskt utfall · budget 50 kr/d</div>
+            <div class="costs">
+              <div class="cell">
+                <div class="l">Total</div>
+                <div class="v amber tabular">4,82 kr</div>
+                <div class="trend">9,6 % av budget</div>
+              </div>
+              <div class="cell">
+                <div class="l">Google Solar</div>
+                <div class="v tabular">3,68 kr</div>
+                <div class="trend">46 anrop</div>
+              </div>
+              <div class="cell">
+                <div class="l">Metria</div>
+                <div class="v tabular">0,84 kr</div>
+                <div class="trend">2 ytor</div>
+              </div>
+              <div class="cell">
+                <div class="l">Övrigt</div>
+                <div class="v tabular">0,30 kr</div>
+                <div class="trend">Gemini flash-lite</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Run -->
+          <section class="block">
+            <h2 class="section-title">Kör berikning nu</h2>
+            <div class="section-sub">Estimat baserat på aktuella grindar</div>
+            <div class="run">
+              <div class="left">
+                <h3>Berika hela kön</h3>
+                <p>
+                  Kör alla tillåtna källor över de 61 prospekt som väntar. Mrkoll och Metria hoppas
+                  över. Resultatet skrivs till databasen när alla källor svarat.
+                </p>
+                <div class="row">
+                  <span class="l">Prospekt i kö</span><span class="v tabular">61</span>
+                </div>
+                <div class="row">
+                  <span class="l">Aktiva källor</span><span class="v tabular">4 av 6</span>
+                </div>
+                <div class="row">
+                  <span class="l">Estimerad tid</span><span class="v tabular">~ 6 min</span>
+                </div>
+                <div class="row">
+                  <span class="l">Estimerad kostnad</span><span class="v tabular">4,88 kr</span>
+                </div>
+                <div class="row">
+                  <span class="l">Mot budget</span><span class="v tabular">9,7 % / dag</span>
+                </div>
+                <div class="cta">
+                  <button class="btn">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M3 12a9 9 0 1 0 9-9" />
+                      <path d="M3 4v5h5" />
+                    </svg>
+                    Dry-run
+                  </button>
+                  <button class="btn primary">
+                    <svg viewBox="0 0 24 24">
+                      <polygon points="5,3 19,12 5,21" fill="currentColor" />
+                    </svg>
+                    Kör berikning · 61 prospekt
+                  </button>
+                </div>
+              </div>
+
+              <div class="dry" aria-label="Dry-run output">
+                <div class="dry-head">
+                  <h4>Dry-run · utfall</h4>
+                  <span class="tag">senast 14:31</span>
+                </div>
+                <pre><span class="c"># plan för 61 prospekt · 4 källor aktiva</span>
+<span class="k">google_solar</span>       <span class="n">61</span> anrop   <span class="s">3,69 kr</span>   ~2m10s
+<span class="k">lantmateriet</span>       <span class="n">61</span> anrop   <span class="s">0,00 kr</span>   ~1m05s
+<span class="k">hitta_se</span>           <span class="n">57</span> anrop   <span class="s">0,00 kr</span>   ~2m40s  <span class="c"># 4 cache</span>
+<span class="k">smhi</span>               <span class="n">12</span> anrop   <span class="s">0,00 kr</span>   ~0m20s  <span class="c"># regionkluster</span>
+<span class="c">---</span>
+<span class="k">mrkoll</span>              <span class="c">pausad · hoppas över</span>
+<span class="k">metria</span>              <span class="c">pausad · hoppas över</span>
+<span class="c">---</span>
+<span class="k">total</span>               <span class="n">191</span> anrop  <span class="s">3,69 kr</span>   ~6m15s
+
+<span class="c"># kvalitetskontroller</span>
+piifilter          aktiv · maskar 4 fält
+verification       CoVe tröskel 0.75
+gate_budget        4,82 kr / 50 kr (9,6 %)  <span class="s">OK</span></pre>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1619 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard — Action-first (mock)</title>
+    <style>
+      :root {
+        --paper: #f5f1ea;
+        --paper-tint: #ebe5d9;
+        --ink: #0d1218;
+        --ink-80: rgba(13, 18, 24, 0.8);
+        --ink-60: rgba(13, 18, 24, 0.6);
+        --ink-20: rgba(13, 18, 24, 0.2);
+        --rule: rgba(13, 18, 24, 0.12);
+        --amber: #d06e29;
+        --forest: #2b4f3c;
+        --stone: #8a8780;
+        --barn: #a23434;
+        --leaf: #c69a4d;
+        --azure: #2f5ec9;
+
+        /* Sidebar (dark, warm near-black) */
+        --sb-bg: #1a1a24;
+        --sb-edge: rgba(255, 255, 255, 0.06);
+        --sb-text: rgba(255, 255, 255, 0.72);
+        --sb-text-strong: #f2ece0;
+        --sb-icon: rgba(255, 255, 255, 0.55);
+        --sb-hover: rgba(255, 255, 255, 0.05);
+        --sb-active: rgba(255, 255, 255, 0.04);
+        --sb-muted: rgba(255, 255, 255, 0.4);
+
+        --font-display: "GT Alpina", "Playfair Display", "Recoleta", Georgia, serif;
+        --font-body: "Inter", "Public Sans", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", "Berkeley Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "tnum", "ss01", "cv11";
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      /* Base outline on every interactive — gives :focus-visible transition
+         a start point to interpolate from (0px transparent → 2px azure). */
+      a,
+      button,
+      summary,
+      [tabindex],
+      input,
+      select,
+      textarea {
+        outline: 0 solid transparent;
+        outline-offset: 0;
+      }
+      :focus-visible {
+        outline: 2px solid var(--azure);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 248px 1fr;
+        min-height: 100vh;
+      }
+
+      /* ───────────── Sidebar ───────────── */
+      .sidebar {
+        background: var(--sb-bg);
+        color: var(--sb-text);
+        border-right: 1px solid var(--sb-edge);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+      }
+      .sb-head {
+        padding: 20px 16px 16px;
+        border-bottom: 1px solid var(--sb-edge);
+      }
+      .sb-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-logo {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+      }
+      .sb-wordmark {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: var(--sb-text-strong);
+      }
+      .sb-tagline {
+        margin-top: 8px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+
+      .sb-section {
+        padding: 12px 16px 6px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+
+      .nav {
+        list-style: none;
+        padding: 0 8px;
+        margin: 0;
+        overflow-y: auto;
+        flex: 1;
+        position: relative;
+        --active-top: 0px;
+        --active-height: 36px;
+      }
+      .nav::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: var(--active-top);
+        width: 2px;
+        height: var(--active-height);
+        background: var(--amber);
+        border-radius: 1px;
+        pointer-events: none;
+        transition: top 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .nav::-webkit-scrollbar {
+        width: 6px;
+      }
+      .nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+      }
+      .nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 14px;
+        font-weight: 450;
+        color: var(--sb-text);
+        border-radius: 2px;
+        transition:
+          background 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          color 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .nav a svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        color: var(--sb-icon);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: 0 0 16px;
+        transition: color 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .nav a:hover {
+        background: var(--sb-hover);
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a:hover svg {
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a[aria-current="page"] {
+        background: var(--sb-active);
+        color: var(--sb-text-strong);
+      }
+      .nav a[aria-current="page"] svg {
+        color: var(--amber);
+      }
+
+      .sb-user {
+        border-top: 1px solid var(--sb-edge);
+        padding: 12px 16px 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        flex: 0 0 32px;
+      }
+      .sb-user-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .sb-user-name {
+        font-size: 14px;
+        color: var(--sb-text-strong);
+        line-height: 1.2;
+      }
+      .sb-user-email {
+        font-size: 11px;
+        color: var(--sb-muted);
+        line-height: 1.2;
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sb-chev {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        color: var(--sb-muted);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .sb-version {
+        padding: 4px 16px 12px;
+        text-align: center;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.25);
+        letter-spacing: 0.04em;
+      }
+
+      /* ───────────── Main ───────────── */
+      main {
+        padding: 40px 40px 48px;
+        max-width: 1280px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .greet {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+      }
+      .greet h1 {
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 400;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+      }
+      .greet h1 em {
+        font-style: normal;
+        color: var(--amber);
+      }
+      .greet .meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+        font-variant-numeric: tabular-nums;
+      }
+      .lede {
+        color: var(--ink-80);
+        font-size: 16px;
+        line-height: 1.6;
+        max-width: 62ch;
+        margin-bottom: 48px;
+      }
+
+      /* KPI row */
+      .today {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        margin-bottom: 48px;
+        border-radius: 2px;
+      }
+      .today .cell {
+        padding: 20px 24px;
+        border-right: 1px solid var(--rule);
+      }
+      .today .cell:last-child {
+        border-right: none;
+      }
+      .today .l {
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+      .today .v {
+        font-family: var(--font-body);
+        font-size: 32px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        color: var(--amber);
+        margin-top: 8px;
+        line-height: 1;
+        letter-spacing: -0.01em;
+      }
+      .today .trend {
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--ink-60);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* CTA grid */
+      .cta-wrap {
+        display: grid;
+        grid-template-columns: 1fr 296px;
+        gap: 24px;
+        margin-bottom: 48px;
+      }
+      .cta-col {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .cta {
+        background: var(--paper);
+        border: 1px solid var(--rule);
+        border-left: 3px solid var(--amber);
+        padding: 28px 32px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: center;
+        cursor: pointer;
+        transition:
+          background 180ms cubic-bezier(0.32, 0.72, 0.28, 1),
+          border-color 180ms;
+        border-radius: 2px;
+      }
+      .cta:hover {
+        background: var(--paper-tint);
+      }
+      .cta .k {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 10px;
+        color: var(--amber);
+        margin-bottom: 8px;
+      }
+      .cta h3 {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        margin-bottom: 8px;
+        line-height: 1.2;
+      }
+      .cta p {
+        color: var(--ink-80);
+        font-size: 14px;
+        line-height: 1.55;
+        max-width: 60ch;
+      }
+      .cta .hint {
+        margin-top: 12px;
+        font-size: 11px;
+        color: var(--ink-60);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+      }
+      .cta .hint kbd {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 2px 6px;
+        border: 1px solid var(--rule);
+        background: var(--paper-tint);
+        border-radius: 2px;
+        color: var(--ink);
+        line-height: 1.2;
+      }
+      .cta .hint .sep {
+        color: var(--ink-20);
+        margin: 0 4px;
+      }
+      .cta .arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        color: var(--amber);
+      }
+      .cta .arrow svg {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: transform 180ms cubic-bezier(0.32, 0.72, 0.28, 1);
+      }
+      .cta:hover .arrow svg {
+        transform: translateX(4px);
+      }
+
+      .cta.secondary {
+        border-left-color: var(--forest);
+      }
+      .cta.secondary .k {
+        color: var(--forest);
+      }
+      .cta.secondary .arrow {
+        color: var(--forest);
+      }
+      .cta.tertiary {
+        border-left-color: var(--leaf);
+      }
+      .cta.tertiary .k {
+        color: var(--leaf);
+      }
+      .cta.tertiary .arrow {
+        color: var(--leaf);
+      }
+
+      /* Right rail */
+      .side {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .side-card {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 4px;
+        padding: 20px;
+      }
+      .side-card h4 {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--rule);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .side-card h4 .c {
+        font-family: var(--font-body);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--forest);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .side-card h4 .c::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: var(--forest);
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .side-card h4 .c.muted {
+        color: var(--ink-60);
+      }
+      .side-card h4 .c.muted::before {
+        display: none;
+      }
+      .side-card ul {
+        list-style: none;
+      }
+      .side-card li {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--rule);
+        font-size: 13px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        transition: background 120ms ease;
+      }
+      .side-card li:last-child {
+        border-bottom: none;
+      }
+      .side-card li:hover {
+        background: var(--paper-tint);
+      }
+      .side-card li .a {
+        color: var(--ink);
+        letter-spacing: -0.005em;
+      }
+      .side-card li .m {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--ink-60);
+        font-variant-numeric: tabular-nums;
+      }
+      .side-card .top-row {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        min-width: 0;
+      }
+      .side-card .rank {
+        font-family: var(--font-display);
+        font-size: 14px;
+        color: var(--amber);
+        width: 16px;
+        font-weight: 500;
+        flex: 0 0 16px;
+      }
+      .side-card li .score {
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      /* Agent footer strip */
+      .agent-strip {
+        margin-top: auto;
+        border-top: 2px solid var(--ink);
+        padding-top: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+      .agent-strip .l {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+      .dots {
+        display: flex;
+        gap: 20px;
+      }
+      .dots .agent {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+      }
+      .dots .agent .d {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .dots .agent .d.g {
+        background: var(--forest);
+      }
+      .dots .agent .d.y {
+        background: var(--leaf);
+      }
+      .dots .agent .d.r {
+        background: var(--barn);
+      }
+      .dots .agent .ts {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-60);
+        margin-left: 4px;
+        font-variant-numeric: tabular-nums;
+      }
+      .agent-strip .link {
+        font-size: 12px;
+        color: var(--azure);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border-bottom: 1px solid var(--azure);
+        padding-bottom: 1px;
+      }
+      .agent-strip .link svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* ───────────── Motion ───────────── */
+      /* Curve: cubic-bezier(0.2, 0.8, 0.2, 1) — "Linear-style" out-ease. */
+
+      /* Page enter: fade + 4px translateY, 240ms, staggered per section */
+      @keyframes enter-fade-up {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .greet,
+      .lede,
+      .today,
+      .cta-wrap,
+      .side,
+      .agent-strip {
+        opacity: 0;
+      }
+      /* Fallback: if JS fails, body.loaded never fires — reveal content. */
+      .no-js .greet,
+      .no-js .lede,
+      .no-js .today,
+      .no-js .cta-wrap,
+      .no-js .side,
+      .no-js .agent-strip {
+        opacity: 1;
+        animation: none;
+      }
+      body.loaded .greet {
+        animation: enter-fade-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1) 0ms both;
+      }
+      body.loaded .lede {
+        animation: enter-fade-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1) 30ms both;
+      }
+      body.loaded .today {
+        animation: enter-fade-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1) 60ms both;
+      }
+      body.loaded .cta-wrap {
+        animation: enter-fade-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1) 90ms both;
+      }
+      body.loaded .side {
+        animation: enter-fade-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms both;
+      }
+      body.loaded .agent-strip {
+        animation: enter-fade-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1) 150ms both;
+      }
+
+      /* Step card hover: 1px border strengthens + arrow slides 4px right, 120ms */
+      .cta {
+        transition:
+          background 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          border-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .cta:hover {
+        border-color: var(--stone);
+      }
+      .cta .arrow svg {
+        transition: transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .cta:hover .arrow svg {
+        transform: translateX(4px);
+      }
+
+      /* Live dot pulse on topmost .is-live row only */
+      @keyframes live-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .side-card li.is-live {
+        position: relative;
+      }
+      .side-card li.is-live::after {
+        content: "";
+        position: absolute;
+        left: -12px;
+        top: 50%;
+        width: 6px;
+        height: 6px;
+        margin-top: -3px;
+        border-radius: 50%;
+        background: var(--forest);
+        animation: live-pulse 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+      }
+
+      /* Row hover fade, 80ms */
+      .side-card li {
+        transition: background 80ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      /* Focus ring animation — 100ms expansion */
+      :focus-visible {
+        transition:
+          outline-width 100ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          outline-offset 100ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      /* ───────────── Mobile top bar + bottom nav (hidden on desktop) ───────────── */
+      .mobile-top,
+      .bottom-nav {
+        display: none;
+      }
+      .mobile-top {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: var(--sb-bg);
+        color: var(--sb-text-strong);
+        height: 52px;
+        padding: 0 12px;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid var(--sb-edge);
+      }
+      .m-menu {
+        position: relative;
+      }
+      .m-menu summary {
+        list-style: none;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sb-text);
+        cursor: pointer;
+        border-radius: 2px;
+      }
+      .m-menu summary::-webkit-details-marker {
+        display: none;
+      }
+      .m-menu[open] summary {
+        background: var(--sb-hover);
+      }
+      .m-menu-panel {
+        position: absolute;
+        top: 52px;
+        left: 0;
+        min-width: 200px;
+        background: var(--sb-bg);
+        border: 1px solid var(--sb-edge);
+        border-radius: 2px;
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+      }
+      .m-menu-panel a {
+        color: var(--sb-text);
+        padding: 12px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        border-radius: 2px;
+      }
+      .m-menu-panel a:hover {
+        background: var(--sb-hover);
+        color: var(--sb-text-strong);
+      }
+      .mobile-brand {
+        flex: 1;
+        font-family: var(--font-display);
+        font-size: 15px;
+        font-weight: 500;
+        text-align: center;
+        letter-spacing: -0.01em;
+      }
+      .mobile-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 32px;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 56px;
+        background: var(--sb-bg);
+        border-top: 1px solid var(--sb-edge);
+        justify-content: space-around;
+        align-items: stretch;
+        z-index: 40;
+      }
+      .bn-item {
+        flex: 1;
+        min-width: 44px;
+        min-height: 56px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding-top: 8px;
+        color: var(--sb-text);
+        font-size: 10px;
+        letter-spacing: 0.02em;
+        position: relative;
+      }
+      .bn-item svg {
+        width: 20px;
+        height: 20px;
+      }
+      .bn-item.is-active {
+        color: var(--amber);
+      }
+      .bn-item.is-active::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 50%;
+        margin-left: -2px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--amber);
+      }
+
+      /* ───────────── 1024px+ : full sidebar, no mobile chrome ───────────── */
+      /* (Base desktop styles above already match 1440+; 1024 mainly changes main gutter) */
+      @media (max-width: 1439px) and (min-width: 1024px) {
+        main {
+          padding: 32px 32px 48px;
+        }
+        /* Step cards full-width, right rail below */
+        .cta-wrap {
+          grid-template-columns: 1fr;
+        }
+        .side {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        .side-card {
+          flex: 1 1 280px;
+        }
+      }
+
+      /* ───────────── 768px–1023px : tablet. Icon-only sidebar, 2×2 KPIs ───────────── */
+      @media (max-width: 1023px) and (min-width: 768px) {
+        .app {
+          grid-template-columns: 56px 1fr;
+        }
+        .sidebar {
+          width: 56px;
+        }
+        .sb-head {
+          padding: 16px 8px;
+        }
+        .sb-wordmark,
+        .sb-tagline,
+        .sb-section {
+          display: none;
+        }
+        .sb-brand {
+          justify-content: center;
+        }
+        .nav {
+          padding: 0 4px;
+        }
+        .nav::before {
+          left: 4px;
+        }
+        .nav a {
+          justify-content: center;
+          padding: 0;
+          height: 44px;
+          position: relative;
+        }
+        .nav a span {
+          position: absolute;
+          left: 56px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: var(--paper);
+          color: var(--ink);
+          border: 1px solid var(--rule);
+          padding: 4px 8px;
+          font-size: 11px;
+          white-space: nowrap;
+          border-radius: 2px;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+          z-index: 20;
+        }
+        .nav a:hover span,
+        .nav a:focus-visible span {
+          opacity: 1;
+        }
+        .sb-user {
+          justify-content: center;
+          padding: 12px 8px;
+        }
+        .sb-user-meta,
+        .sb-chev {
+          display: none;
+        }
+        .sb-version {
+          display: none;
+        }
+        main {
+          padding: 32px 24px 48px;
+        }
+        .today {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .today .cell:nth-child(2n) {
+          border-right: none;
+        }
+        .today .cell:nth-child(-n + 2) {
+          border-bottom: 1px solid var(--rule);
+        }
+        .cta-wrap {
+          grid-template-columns: 1fr;
+        }
+        .side {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        .side-card {
+          flex: 1 1 280px;
+        }
+      }
+
+      /* ───────────── ≤767px : phone. Bottom nav + top bar, stack everything ───────────── */
+      @media (max-width: 767px) {
+        .mobile-top {
+          display: flex;
+        }
+        .bottom-nav {
+          display: flex;
+        }
+        .app {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          display: none;
+        }
+        main {
+          padding: 20px 16px 72px; /* 56 bottom-nav + 16 spacer */
+          min-height: calc(100vh - 52px - 56px);
+        }
+        .greet {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 6px;
+        }
+        .greet h1 {
+          font-size: 22px;
+        }
+        .lede {
+          font-size: 15px;
+          margin-bottom: 32px;
+        }
+        .today {
+          grid-template-columns: repeat(2, 1fr);
+          margin-bottom: 32px;
+        }
+        .today .cell {
+          padding: 16px 16px;
+        }
+        .today .cell:nth-child(2n) {
+          border-right: none;
+        }
+        .today .cell:nth-child(-n + 2) {
+          border-bottom: 1px solid var(--rule);
+        }
+        .today .v {
+          font-size: 28px;
+        }
+        .cta-wrap {
+          grid-template-columns: 1fr;
+          gap: 16px;
+          margin-bottom: 32px;
+        }
+        .cta {
+          padding: 20px 20px;
+          min-height: 44px;
+        }
+        .cta h3 {
+          font-size: 20px;
+        }
+        .side {
+          flex-direction: column;
+        }
+        .agent-strip {
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .dots {
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        /* Touch targets 44×44 minimum */
+        .cta,
+        .side-card li,
+        .m-menu-panel a,
+        .bn-item {
+          min-height: 44px;
+        }
+      }
+
+      /* Reduced motion: disable everything except focus ring */
+      @media (prefers-reduced-motion: reduce) {
+        .greet,
+        .lede,
+        .today,
+        .cta-wrap,
+        .side,
+        .agent-strip,
+        body.loaded .greet,
+        body.loaded .lede,
+        body.loaded .today,
+        body.loaded .cta-wrap,
+        body.loaded .side,
+        body.loaded .agent-strip {
+          opacity: 1;
+          animation: none;
+        }
+        .nav::before,
+        .cta,
+        .cta .arrow svg,
+        .side-card li,
+        .nav a,
+        .nav a svg {
+          transition: none !important;
+        }
+        .side-card li.is-live::after {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="no-js">
+    <script>
+      // Inline and blocking so it runs before paint: switch off no-js fallback
+      // for JS users so the `body.loaded` fade-in animation can run.
+      document.body.classList.remove("no-js");
+    </script>
+    <!-- Mobile top bar (visible ≤767px only) -->
+    <header class="mobile-top" aria-label="Toppfält mobil">
+      <details class="m-menu">
+        <summary aria-label="Meny">
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 6h18" />
+            <path d="M3 12h18" />
+            <path d="M3 18h18" />
+          </svg>
+        </summary>
+        <nav class="m-menu-panel" aria-label="Fler sidor">
+          <a href="#detektion">Detektion</a>
+          <a href="#karta">Karta</a>
+          <a href="#berikning">Berikning</a>
+        </nav>
+      </details>
+      <span class="mobile-brand">Edvin Solar</span>
+      <div class="mobile-avatar" aria-hidden="true">EP</div>
+    </header>
+
+    <div class="app">
+      <aside class="sidebar" aria-label="Primär navigation">
+        <div class="sb-head">
+          <div class="sb-brand">
+            <svg class="sb-logo" viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="10" cy="7" r="2.6" fill="#d06e29" />
+              <path d="M1.5 15.5 L10 8.5 L18.5 15.5 Z" fill="#d06e29" opacity="0.9" />
+              <path d="M4 15.5 L10 10.5 L16 15.5 Z" fill="#1a1a24" />
+            </svg>
+            <span class="sb-wordmark">Edvin Solar</span>
+          </div>
+          <div class="sb-tagline">Prospect Agent System</div>
+        </div>
+
+        <div class="sb-section">Workspace</div>
+        <ul class="nav" role="list">
+          <li>
+            <a href="#dashboard" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect width="7" height="9" x="3" y="3" rx="1" />
+                <rect width="7" height="5" x="14" y="3" rx="1" />
+                <rect width="7" height="9" x="14" y="12" rx="1" />
+                <rect width="7" height="5" x="3" y="16" rx="1" />
+              </svg>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#prospekt">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <span>Prospekt</span>
+            </a>
+          </li>
+          <li>
+            <a href="#sok">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" />
+              </svg>
+              <span>Sök</span>
+            </a>
+          </li>
+          <li>
+            <a href="#detektion">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                <circle cx="12" cy="12" r="3" />
+                <path d="m16 16-1.9-1.9" />
+              </svg>
+              <span>Detektion</span>
+            </a>
+          </li>
+          <li>
+            <a href="#karta">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z" />
+                <path d="M9 3v15" />
+                <path d="M15 6v15" />
+              </svg>
+              <span>Karta</span>
+            </a>
+          </li>
+          <li>
+            <a href="#agenter">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 8V4H8" />
+                <rect width="16" height="12" x="4" y="8" rx="2" />
+                <path d="M2 14h2" />
+                <path d="M20 14h2" />
+                <path d="M15 13v2" />
+                <path d="M9 13v2" />
+              </svg>
+              <span>Agenter</span>
+            </a>
+          </li>
+          <li>
+            <a href="#berikning">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+                />
+                <path d="M20 3v4" />
+                <path d="M22 5h-4" />
+                <path d="M4 17v2" />
+                <path d="M5 18H3" />
+              </svg>
+              <span>Berikning</span>
+            </a>
+          </li>
+          <li>
+            <a href="#installningar">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+                />
+              </svg>
+              <span>Inställningar</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="sb-user" role="button" tabindex="0" aria-label="Konto: Edvin Pierre">
+          <div class="sb-avatar" aria-hidden="true">EP</div>
+          <div class="sb-user-meta">
+            <div class="sb-user-name">Edvin Pierre</div>
+            <div class="sb-user-email">edvin.pierre03@gmail.com</div>
+          </div>
+          <svg class="sb-chev" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 15l-6-6-6 6" />
+          </svg>
+        </div>
+        <div class="sb-version">v0.1.0</div>
+      </aside>
+
+      <main>
+        <div class="greet">
+          <h1>God eftermiddag, <em>Edvin</em></h1>
+          <div class="meta">TIS 21 APR · 14:32 · Falun</div>
+        </div>
+        <p class="lede">
+          Tjugotre nya prospekt väntar. Du kan berika dem nu, köra paneldetektion på dagens kö,
+          eller titta på de högst rankade. Välj där du vill börja.
+        </p>
+
+        <section class="today" aria-label="Dagens nyckeltal">
+          <div class="cell">
+            <div class="l">Nya idag</div>
+            <div class="v tabular" data-target="23" data-prefix="+">+23</div>
+            <div class="trend">+8 jfr ons</div>
+          </div>
+          <div class="cell">
+            <div class="l">Berikade idag</div>
+            <div class="v tabular" data-target="47" data-prefix="+">+47</div>
+            <div class="trend">+5 jfr ons</div>
+          </div>
+          <div class="cell">
+            <div class="l">Detekterade idag</div>
+            <div class="v tabular" data-target="12" data-prefix="+">+12</div>
+            <div class="trend">−3 jfr ons</div>
+          </div>
+          <div class="cell">
+            <div class="l">Kö (berikning)</div>
+            <div class="v tabular" data-target="61" data-prefix="">61</div>
+            <div class="trend">±0 jfr ons</div>
+          </div>
+        </section>
+
+        <section class="cta-wrap">
+          <div class="cta-col">
+            <a class="cta" href="#prospekt">
+              <div>
+                <div class="k">01 · Vanligaste start</div>
+                <h3>Klistra in adresser</h3>
+                <p>
+                  Lägg till nya prospekt genom att klistra in en rå lista adresser — en per rad.
+                  Duplikater hanteras automatiskt. Ex. "Sveagatan 12, Falun".
+                </p>
+                <div class="hint">
+                  <span>Kortkommando</span>
+                  <kbd>Ctrl</kbd><span>+</span><kbd>V</kbd>
+                  <span>på Prospekt-sidan</span>
+                  <span class="sep">·</span>
+                  <span>eller</span>
+                  <kbd>G</kbd><kbd>P</kbd>
+                </div>
+              </div>
+              <div class="arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M5 12h14" />
+                  <path d="M13 5l7 7-7 7" />
+                </svg>
+              </div>
+            </a>
+
+            <a class="cta secondary" href="#detektion">
+              <div>
+                <div class="k">02 · Bearbeta kön</div>
+                <h3>Kör paneldetektion</h3>
+                <p>
+                  Sextio prospekt väntar på att få sina tak analyserade. Köra hela kön tar cirka 4
+                  minuter och kostar inget (PVGIS + Nominatim, gratis).
+                </p>
+                <div class="hint">
+                  <span>Gate</span>
+                  <kbd>ALLOW_GOOGLE_SOLAR_API</kbd>
+                  <span>= OFF</span>
+                  <span class="sep">·</span>
+                  <span>endast gratis-API:er</span>
+                </div>
+              </div>
+              <div class="arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M5 12h14" />
+                  <path d="M13 5l7 7-7 7" />
+                </svg>
+              </div>
+            </a>
+
+            <a class="cta tertiary" href="#top">
+              <div>
+                <div class="k">03 · Följ upp</div>
+                <h3>Visa toppprospekt</h3>
+                <p>
+                  Se dagens högst rankade — de sju med score ≥ 8.0 efter nattens körning. Sortera på
+                  kWh-potential eller takvinkel.
+                </p>
+                <div class="hint">
+                  <span>Öppnar Prospekt-sidan med filter</span>
+                  <kbd>score ≥ 8.0</kbd>
+                </div>
+              </div>
+              <div class="arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M5 12h14" />
+                  <path d="M13 5l7 7-7 7" />
+                </svg>
+              </div>
+            </a>
+          </div>
+
+          <aside class="side" aria-label="Sidopanel">
+            <div class="side-card">
+              <h4>Senaste händelser <span class="c">live</span></h4>
+              <ul>
+                <li class="is-live">
+                  <span class="a">Sveagatan 12, Falun</span><span class="m">14:31</span>
+                </li>
+                <li><span class="a">CSV · 23 rader</span><span class="m">14:28</span></li>
+                <li><span class="a">PatternAgent insikt</span><span class="m">14:24</span></li>
+                <li><span class="a">Östermalmsg. 8 · retry</span><span class="m">14:19</span></li>
+                <li><span class="a">CoVe · 7/8 OK</span><span class="m">14:15</span></li>
+              </ul>
+            </div>
+            <div class="side-card">
+              <h4>Dagens topp 3 <span class="c muted">score</span></h4>
+              <ul>
+                <li>
+                  <span class="top-row"
+                    ><span class="rank">1</span><span class="a">Sveagatan 12, Falun</span></span
+                  ><span class="score tabular">9.4</span>
+                </li>
+                <li>
+                  <span class="top-row"
+                    ><span class="rank">2</span
+                    ><span class="a">Kopparbergsv. 44, Borlänge</span></span
+                  ><span class="score tabular">9.1</span>
+                </li>
+                <li>
+                  <span class="top-row"
+                    ><span class="rank">3</span><span class="a">Storgatan 8, Ludvika</span></span
+                  ><span class="score tabular">8.9</span>
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </section>
+
+        <footer class="agent-strip">
+          <span class="l">Agentstatus</span>
+          <div class="dots">
+            <div class="agent">
+              <span class="d g"></span><span class="n">PanelAgent</span
+              ><span class="ts">14:31</span>
+            </div>
+            <div class="agent">
+              <span class="d g"></span><span class="n">ScoreAgent</span
+              ><span class="ts">14:28</span>
+            </div>
+            <div class="agent">
+              <span class="d y"></span><span class="n">PatternAgent</span
+              ><span class="ts">14:24</span>
+            </div>
+            <div class="agent">
+              <span class="d g"></span><span class="n">PIIFilter</span><span class="ts">14:22</span>
+            </div>
+            <div class="agent">
+              <span class="d r"></span><span class="n">ImageAgent</span
+              ><span class="ts">13:58</span>
+            </div>
+          </div>
+          <a class="link" href="#agenter" aria-label="Öppna Agenter">
+            <span>Öppna Agenter</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="M13 5l7 7-7 7" />
+            </svg>
+          </a>
+        </footer>
+      </main>
+    </div>
+
+    <!-- Mobile bottom nav (visible ≤767px only) -->
+    <nav class="bottom-nav" aria-label="Primär navigation mobil">
+      <a href="#dashboard" class="bn-item is-active" aria-current="page">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect width="7" height="9" x="3" y="3" rx="1" />
+          <rect width="7" height="5" x="14" y="3" rx="1" />
+          <rect width="7" height="9" x="14" y="12" rx="1" />
+          <rect width="7" height="5" x="3" y="16" rx="1" />
+        </svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="#prospekt" class="bn-item">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+        <span>Prospekt</span>
+      </a>
+      <a href="#sok" class="bn-item">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="M21 21l-4.3-4.3" />
+        </svg>
+        <span>Sök</span>
+      </a>
+      <a href="#agenter" class="bn-item">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 8V4H8" />
+          <rect width="16" height="12" x="4" y="8" rx="2" />
+          <path d="M2 14h2" />
+          <path d="M20 14h2" />
+          <path d="M15 13v2" />
+          <path d="M9 13v2" />
+        </svg>
+        <span>Agenter</span>
+      </a>
+      <a href="#installningar" class="bn-item">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+          />
+        </svg>
+        <span>Inställn.</span>
+      </a>
+    </nav>
+
+    <!-- Reusable empty-state illustrations (64×64, 1.5 stroke, currentColor + amber accent dot) -->
+    <template id="illo-tomt-prospekt">
+      <svg
+        viewBox="0 0 64 64"
+        width="64"
+        height="64"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <!-- House: roof + walls -->
+        <path d="M12 32 L32 18 L52 32" />
+        <path d="M16 30 V50 H48 V30" />
+        <!-- Door -->
+        <path d="M28 50 V38 H36 V50" />
+        <!-- Pending dot above the roof peak -->
+        <circle cx="32" cy="10" r="2.5" fill="var(--amber)" stroke="var(--amber)" />
+      </svg>
+    </template>
+
+    <script>
+      (function () {
+        "use strict";
+        var reduced =
+          window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // 1. Position the shared active indicator under the current .nav a
+        var nav = document.querySelector(".nav");
+        function positionIndicator(link, animate) {
+          if (!nav || !link) return;
+          var li = link.closest("li");
+          if (!li) return;
+          var top = li.offsetTop;
+          var h = li.offsetHeight;
+          if (!animate) {
+            // Suspend transition for initial placement
+            var prev = nav.style.transition;
+            nav.style.setProperty("--active-top", top + "px");
+            nav.style.setProperty("--active-height", h + "px");
+            nav.style.transition = prev;
+          } else {
+            nav.style.setProperty("--active-top", top + "px");
+            nav.style.setProperty("--active-height", h + "px");
+          }
+        }
+        var current = document.querySelector('.nav a[aria-current="page"]');
+        if (current) positionIndicator(current, false);
+
+        // Click handler: slide indicator, swap aria-current
+        var navLinks = document.querySelectorAll(".nav a");
+        navLinks.forEach(function (a) {
+          a.addEventListener("click", function (e) {
+            // Don't navigate for in-page demo anchors
+            e.preventDefault();
+            navLinks.forEach(function (other) {
+              other.removeAttribute("aria-current");
+            });
+            a.setAttribute("aria-current", "page");
+            positionIndicator(a, true);
+          });
+        });
+
+        // 2. body.loaded on next frame, kicks off CSS enter animations
+        requestAnimationFrame(function () {
+          document.body.classList.add("loaded");
+        });
+
+        // 3. KPI count-up — 600ms, ease-out. Skip if reduced-motion.
+        var kpis = document.querySelectorAll(".today .v[data-target]");
+        if (reduced) {
+          kpis.forEach(function (el) {
+            // Preserve authored text (includes prefix + sign)
+          });
+        } else {
+          var duration = 600;
+          var easeOut = function (t) {
+            return 1 - Math.pow(1 - t, 3);
+          };
+          kpis.forEach(function (el) {
+            var target = parseInt(el.getAttribute("data-target"), 10);
+            var prefix = el.getAttribute("data-prefix") || "";
+            if (isNaN(target)) return;
+            var start = null;
+            el.textContent = prefix + "0";
+            function step(ts) {
+              if (start === null) start = ts;
+              var p = Math.min(1, (ts - start) / duration);
+              var v = Math.round(target * easeOut(p));
+              el.textContent = prefix + v;
+              if (p < 1) requestAnimationFrame(step);
+              else el.textContent = prefix + target;
+            }
+            requestAnimationFrame(step);
+          });
+        }
+      })();
+    </script>
+
+    <template id="illo-vantar-svar">
+      <svg
+        viewBox="0 0 64 64"
+        width="64"
+        height="64"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <!-- Minimalist bird: body + beak + tail as one continuous silhouette -->
+        <path
+          d="M14 40 C 18 28, 30 22, 40 26 L 48 22 L 46 30 C 50 34, 50 40, 46 44 C 40 50, 24 50, 18 46 L 10 50 L 14 40 Z"
+        />
+        <!-- Eye -->
+        <circle cx="40" cy="32" r="0.9" fill="currentColor" stroke="none" />
+        <!-- Speech dot -->
+        <circle cx="54" cy="18" r="2.5" fill="var(--amber)" stroke="var(--amber)" />
+      </svg>
+    </template>
+  </body>
+</html>

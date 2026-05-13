@@ -1,0 +1,54 @@
+# Swedish addresses for bootstrap_labels.py — distill teacher into labels.
+# Mix of likely-positive (suburban detached homes) and likely-negative
+# (apartment blocks, central city) so the trained head sees both classes.
+# Replace / extend with addresses relevant to your sales territory.
+#
+# One address per line, # for comments.
+
+# --- Stockholm region: detached homes (likely positive) ---
+Edsbergsvägen 22, Sollentuna
+Vällingbyplan 10, Vällingby
+Hägerstensvägen 100, Hägersten
+Skogvaktargatan 8, Bromma
+Nynäsvägen 200, Älta
+Visbyringen 14, Kista
+Värmdövägen 50, Saltsjö-Boo
+Bergshamravägen 100, Solna
+
+# --- Göteborg region: detached + suburb ---
+Kärralundsgatan 7, Örgryte
+Hisingsleden 50, Hisings Backa
+Aprilgatan 14, Mölndal
+Storåsvägen 22, Partille
+Önnered, Västra Frölunda
+
+# --- Malmö region: villa + suburb ---
+Limhamnsvägen 100, Limhamn
+Hyllievångsvägen 20, Malmö
+Lerstigen 5, Lomma
+Skansvägen 12, Bunkeflostrand
+
+# --- Mid-size cities: mixed villa stock ---
+Ekerövägen 30, Uppsala
+Tornbyvägen 8, Linköping
+Östra Vägen 4, Norrköping
+Solgatan 11, Västerås
+Kopparbergsvägen 25, Örebro
+Stenbocksvägen 14, Eskilstuna
+Vetegatan 7, Helsingborg
+Drottninggatan 30, Karlstad
+
+# --- Apartment blocks / central city (likely negative) ---
+Drottninggatan 1, Stockholm
+Sveavägen 50, Stockholm
+Kungsgatan 1, Göteborg
+Avenyn 25, Göteborg
+Stortorget 1, Malmö
+Triangeln 1, Malmö
+Stora Torget 1, Uppsala
+Storgatan 1, Linköping
+
+# --- Industrial / commercial roofs (positive ground truth varies — useful edge cases) ---
+Hangarvägen 1, Arlanda
+Importgatan 10, Hisings Backa
+Lockarp 1, Malmö

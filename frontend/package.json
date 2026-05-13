@@ -1,0 +1,54 @@
+{
+  "name": "solar-unified-frontend",
+  "description": "Solar prospecting app for Swedish market",
+  "author": {
+    "name": "Edvin Pierre",
+    "email": "edvin.pierre03@gmail.com"
+  },
+  "homepage": "https://github.com/edvin-e7/solar-unified",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "electron:dev": "electron .",
+    "electron:pack:win": "electron-builder --win --config electron-builder.yml",
+    "electron:pack:mac": "electron-builder --mac --config electron-builder.yml",
+    "electron:pack:linux": "electron-builder --linux --config electron-builder.yml",
+    "electron:pack:all": "electron-builder -mwl --config electron-builder.yml"
+  },
+  "dependencies": {
+    "@capacitor/android": "7",
+    "@capacitor/core": "7",
+    "@tailwindcss/vite": "^4.2.2",
+    "maplibre-gl": "^5.23.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^6.30.3",
+    "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "7",
+    "@rolldown/binding-linux-x64-gnu": "1.0.0-rc.16",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "electron": "41.2.1",
+    "electron-builder": "^26.8.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.4",
+    "vite-plugin-pwa": "^1.2.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron"
+    ],
+    "overrides": {
+      "serialize-javascript": "^7.0.0",
+      "ip-address": "^10.2.0"
+    }
+  }
+}

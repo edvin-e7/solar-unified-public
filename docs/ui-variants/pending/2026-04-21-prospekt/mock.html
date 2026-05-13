@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <title>Prospekt — lista (mock)</title>
+    <style>
+      :root {
+        --paper: #f5f1ea;
+        --paper-tint: #ebe5d9;
+        --ink: #0d1218;
+        --ink-80: rgba(13, 18, 24, 0.8);
+        --ink-60: rgba(13, 18, 24, 0.6);
+        --ink-40: rgba(13, 18, 24, 0.4);
+        --ink-20: rgba(13, 18, 24, 0.2);
+        --rule: rgba(13, 18, 24, 0.12);
+        --amber: #d06e29;
+        --forest: #2b4f3c;
+        --stone: #8a8780;
+        --barn: #a23434;
+        --leaf: #c69a4d;
+        --azure: #2f5ec9;
+
+        --sb-bg: #1a1a24;
+        --sb-edge: rgba(255, 255, 255, 0.06);
+        --sb-text: rgba(255, 255, 255, 0.72);
+        --sb-text-strong: #f2ece0;
+        --sb-icon: rgba(255, 255, 255, 0.55);
+        --sb-hover: rgba(255, 255, 255, 0.05);
+        --sb-active: rgba(255, 255, 255, 0.04);
+        --sb-muted: rgba(255, 255, 255, 0.4);
+
+        --font-display: "GT Alpina", "Playfair Display", "Recoleta", Georgia, serif;
+        --font-body: "Inter", "Public Sans", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", "Berkeley Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "tnum", "ss01", "cv11";
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      :focus-visible {
+        outline: 2px solid var(--azure);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 248px 1fr;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background: var(--sb-bg);
+        color: var(--sb-text);
+        border-right: 1px solid var(--sb-edge);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+      }
+      .sb-head {
+        padding: 20px 16px 16px;
+        border-bottom: 1px solid var(--sb-edge);
+      }
+      .sb-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-logo {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+      }
+      .sb-wordmark {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: var(--sb-text-strong);
+      }
+      .sb-tagline {
+        margin-top: 8px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+      .sb-section {
+        padding: 12px 16px 6px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+      .nav {
+        list-style: none;
+        padding: 0 8px;
+        margin: 0;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .nav::-webkit-scrollbar {
+        width: 6px;
+      }
+      .nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+      }
+      .nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 14px;
+        font-weight: 450;
+        color: var(--sb-text);
+        border-left: 2px solid transparent;
+        border-radius: 2px;
+        transition:
+          background 120ms ease,
+          color 120ms ease;
+      }
+      .nav a svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        color: var(--sb-icon);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: 0 0 16px;
+        transition: color 120ms ease;
+      }
+      .nav a:hover {
+        background: var(--sb-hover);
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a:hover svg {
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a[aria-current="page"] {
+        background: var(--sb-active);
+        border-left-color: var(--amber);
+        color: var(--sb-text-strong);
+      }
+      .nav a[aria-current="page"] svg {
+        color: var(--amber);
+      }
+      .sb-user {
+        border-top: 1px solid var(--sb-edge);
+        padding: 12px 16px 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        flex: 0 0 32px;
+      }
+      .sb-user-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .sb-user-name {
+        font-size: 14px;
+        color: var(--sb-text-strong);
+        line-height: 1.2;
+      }
+      .sb-user-email {
+        font-size: 11px;
+        color: var(--sb-muted);
+        line-height: 1.2;
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sb-chev {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        color: var(--sb-muted);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .sb-version {
+        padding: 4px 16px 12px;
+        text-align: center;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.25);
+        letter-spacing: 0.04em;
+      }
+
+      /* Topbar */
+      .main-col {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .topbar {
+        height: 48px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--paper);
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        gap: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .breadcrumb {
+        font-size: 12px;
+        color: var(--ink-60);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .breadcrumb .sep {
+        color: var(--ink-20);
+      }
+      .breadcrumb .current {
+        color: var(--ink);
+      }
+      .cmdk {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        background: var(--paper);
+        color: var(--ink-60);
+        font-size: 12px;
+        min-width: 320px;
+        max-width: 420px;
+        margin: 0 auto;
+        cursor: pointer;
+        transition: border-color 120ms ease;
+      }
+      .cmdk:hover {
+        border-color: var(--ink-40);
+      }
+      .cmdk svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .cmdk .kbd {
+        margin-left: auto;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 1px 6px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        color: var(--ink-60);
+        background: var(--paper-tint);
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+      }
+      .icon-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 0;
+        color: var(--ink-60);
+        cursor: pointer;
+        border-radius: 2px;
+      }
+      .icon-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .icon-btn:hover {
+        background: var(--paper-tint);
+        color: var(--ink);
+      }
+      .tb-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      /* Main */
+      main {
+        padding: 40px 40px 48px;
+        max-width: 1440px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .page-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+      }
+      .page-head h1 {
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 400;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+      }
+      .page-head .meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+      }
+      .lede {
+        color: var(--ink-80);
+        font-size: 16px;
+        line-height: 1.6;
+        max-width: 62ch;
+        margin-bottom: 32px;
+      }
+
+      /* Toolbar */
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 0;
+        margin-bottom: 16px;
+        border-top: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+      }
+      .tb-count {
+        font-size: 12px;
+        color: var(--ink-60);
+        margin-right: 12px;
+      }
+      .tb-count strong {
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 32px;
+        padding: 0 12px;
+        background: var(--paper);
+        color: var(--ink);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        cursor: pointer;
+        transition:
+          border-color 120ms ease,
+          background 120ms ease;
+      }
+      .btn:hover {
+        background: var(--paper-tint);
+        border-color: var(--ink-40);
+      }
+      .btn.danger {
+        color: var(--barn);
+      }
+      .btn.danger:hover {
+        border-color: var(--barn);
+      }
+      .btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .tb-spacer {
+        flex: 1;
+      }
+      .tb-filter {
+        font-size: 12px;
+        color: var(--ink-60);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        background: var(--paper);
+        cursor: pointer;
+      }
+      .tb-filter svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* Layout: table + drawer */
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 24px;
+        align-items: start;
+      }
+
+      /* Table */
+      .table-wrap {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      thead th {
+        text-align: left;
+        font-weight: 500;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-60);
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--paper);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      thead th .sort {
+        display: inline-block;
+        margin-left: 4px;
+        color: var(--ink-20);
+      }
+      thead th.active .sort {
+        color: var(--amber);
+      }
+      thead th.cb {
+        width: 32px;
+        padding-left: 16px;
+      }
+      tbody td {
+        padding: 12px;
+        border-bottom: 1px solid var(--rule);
+        vertical-align: middle;
+      }
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: var(--paper-tint);
+      }
+      tbody tr.selected {
+        background: var(--paper-tint);
+      }
+      tbody tr.selected td:first-child {
+        box-shadow: inset 2px 0 0 var(--amber);
+      }
+      td.cb {
+        padding-left: 16px;
+        width: 32px;
+      }
+      .cb input {
+        accent-color: var(--azure);
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
+      }
+      td.addr {
+        font-weight: 500;
+        letter-spacing: -0.005em;
+      }
+      td.city {
+        color: var(--ink-80);
+      }
+      .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+        vertical-align: -1px;
+      }
+      .dot.g {
+        background: var(--forest);
+      }
+      .dot.y {
+        background: var(--leaf);
+      }
+      .dot.r {
+        background: var(--barn);
+      }
+      .dot.s {
+        background: var(--stone);
+      }
+      td.status {
+        font-size: 13px;
+        color: var(--ink-80);
+        white-space: nowrap;
+      }
+      td.score {
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      td.phone {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--ink-80);
+        font-variant-numeric: tabular-nums;
+      }
+      td.when {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--ink-60);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+
+      /* Drawer */
+      .drawer {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 2px;
+        border-left: 3px solid var(--amber);
+        padding: 24px;
+        position: sticky;
+        top: 88px;
+      }
+      .drawer .k {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 10px;
+        color: var(--amber);
+        margin-bottom: 8px;
+      }
+      .drawer h3 {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        margin-bottom: 4px;
+        line-height: 1.2;
+      }
+      .drawer .sub {
+        font-size: 13px;
+        color: var(--ink-60);
+        margin-bottom: 20px;
+      }
+      .drawer .row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--rule);
+        font-size: 13px;
+      }
+      .drawer .row .l {
+        color: var(--ink-60);
+      }
+      .drawer .row .v {
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+      }
+      .drawer .row:last-of-type {
+        border-bottom: none;
+      }
+      .drawer .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--rule);
+      }
+      .drawer .btn-primary {
+        flex: 1;
+        height: 36px;
+        background: var(--azure);
+        color: #fff;
+        border: 1px solid var(--azure);
+        border-radius: 2px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .drawer .btn-primary:hover {
+        filter: brightness(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <!-- ======== SIDEBAR ======== -->
+      <aside class="sidebar" aria-label="Primär navigation">
+        <div class="sb-head">
+          <div class="sb-brand">
+            <svg class="sb-logo" viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="10" cy="7" r="2.6" fill="#d06e29" />
+              <path d="M1.5 15.5 L10 8.5 L18.5 15.5 Z" fill="#d06e29" opacity="0.9" />
+              <path d="M4 15.5 L10 10.5 L16 15.5 Z" fill="#1a1a24" />
+            </svg>
+            <span class="sb-wordmark">Edvin Solar</span>
+          </div>
+          <div class="sb-tagline">Prospect Agent System</div>
+        </div>
+
+        <div class="sb-section">Workspace</div>
+        <ul class="nav" role="list">
+          <li>
+            <a href="../2026-04-21-dashboard-action/mock.html"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="9" rx="1" />
+                <rect x="14" y="3" width="7" height="5" rx="1" />
+                <rect x="14" y="12" width="7" height="9" rx="1" />
+                <rect x="3" y="16" width="7" height="5" rx="1" /></svg
+              ><span>Dashboard</span></a
+            >
+          </li>
+          <li>
+            <a href="#prospekt" aria-current="page"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+              ><span>Prospekt</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-sok/mock.html"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" /></svg
+              ><span>Sök</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-detektion/mock.html"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                <circle cx="12" cy="12" r="1.5" />
+                <path d="M18 12a6 6 0 0 1-12 0 6 6 0 0 1 12 0z" /></svg
+              ><span>Detektion</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-karta/mock.html"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z" />
+                <path d="M9 3v15" />
+                <path d="M15 6v15" /></svg
+              ><span>Karta</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-agenter/mock.html"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2v4" />
+                <rect x="4" y="6" width="16" height="12" rx="2" />
+                <path d="M2 14h2" />
+                <path d="M20 14h2" />
+                <circle cx="9" cy="12" r="1" />
+                <circle cx="15" cy="12" r="1" />
+                <path d="M9 16h6" /></svg
+              ><span>Agenter</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-berikning/mock.html"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3l1.9 4.9L19 10l-5.1 2.1L12 17l-1.9-4.9L5 10l5.1-2.1L12 3z" />
+                <path d="M19 17l.9 2.1L22 20l-2.1.9L19 23l-.9-2.1L16 20l2.1-.9L19 17z" />
+                <path d="M5 3l.6 1.4L7 5l-1.4.6L5 7l-.6-1.4L3 5l1.4-.6L5 3z" /></svg
+              ><span>Berikning</span></a
+            >
+          </li>
+          <li>
+            <a href="../2026-04-21-installningar/mock.html"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+                /></svg
+              ><span>Inställningar</span></a
+            >
+          </li>
+        </ul>
+
+        <div class="sb-user" role="button" tabindex="0" aria-label="Konto: Edvin Pierre">
+          <div class="sb-avatar" aria-hidden="true">EP</div>
+          <div class="sb-user-meta">
+            <div class="sb-user-name">Edvin Pierre</div>
+            <div class="sb-user-email">edvin.pierre03@gmail.com</div>
+          </div>
+          <svg class="sb-chev" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 15l-6-6-6 6" />
+          </svg>
+        </div>
+        <div class="sb-version">v0.1.0</div>
+      </aside>
+
+      <div class="main-col">
+        <!-- ======== TOPBAR ======== -->
+        <header class="topbar">
+          <div class="breadcrumb">
+            <span>Arbetsyta</span>
+            <span class="sep">/</span>
+            <span class="current">Prospekt</span>
+          </div>
+          <button class="cmdk" aria-label="Sök (Cmd+K)">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" />
+            </svg>
+            <span>Sök adress, stad, status…</span>
+            <span class="kbd">⌘K</span>
+          </button>
+          <div class="topbar-right">
+            <button class="icon-btn" aria-label="Notiser">
+              <svg viewBox="0 0 24 24">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+            </button>
+            <div class="tb-avatar" aria-label="Edvin Pierre">EP</div>
+          </div>
+        </header>
+
+        <!-- ======== MAIN ======== -->
+        <main>
+          <div class="page-head">
+            <h1>Prospekt</h1>
+            <div class="meta">248 TOTALT · 23 NYA IDAG</div>
+          </div>
+          <p class="lede">
+            Alla prospekt i databasen. Markera rader för bulkåtgärder. Sortera på valfri kolumn.
+            Klicka en rad för förhandsgranskning i högerpanelen.
+          </p>
+
+          <!-- Toolbar -->
+          <div class="toolbar" role="toolbar" aria-label="Bulkåtgärder">
+            <span class="tb-count"><strong>3</strong> markerade</span>
+            <button class="btn">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+              </svg>
+              Ändra status
+            </button>
+            <button class="btn">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3l1.9 4.9L19 10l-5.1 2.1L12 17l-1.9-4.9L5 10l5.1-2.1L12 3z" />
+              </svg>
+              Berika
+            </button>
+            <button class="btn">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <path d="M7 10l5 5 5-5" />
+                <path d="M12 15V3" />
+              </svg>
+              Exportera CSV
+            </button>
+            <button class="btn danger">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 6h18" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              </svg>
+              Radera
+            </button>
+            <span class="tb-spacer"></span>
+            <button class="tb-filter" aria-label="Filter">
+              <svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8L3 4z" /></svg>
+              Filter · Alla statusar
+            </button>
+          </div>
+
+          <!-- Table + Drawer -->
+          <section class="grid">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="cb"><input type="checkbox" aria-label="Markera alla" /></th>
+                    <th>Adress <span class="sort">↕</span></th>
+                    <th>Stad <span class="sort">↕</span></th>
+                    <th>Status <span class="sort">↕</span></th>
+                    <th class="active">Score <span class="sort">↓</span></th>
+                    <th>Telefon</th>
+                    <th>Senast kontaktad <span class="sort">↕</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="selected" aria-selected="true">
+                    <td class="cb"><input type="checkbox" checked aria-label="Markera rad" /></td>
+                    <td class="addr">Sveagatan 12</td>
+                    <td class="city">Falun</td>
+                    <td class="status"><span class="dot g"></span>Intresserad</td>
+                    <td class="score">9.4</td>
+                    <td class="phone">070-412 88 21</td>
+                    <td class="when">2026-04-20</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" checked aria-label="Markera rad" /></td>
+                    <td class="addr">Kopparbergsvägen 44</td>
+                    <td class="city">Borlänge</td>
+                    <td class="status"><span class="dot y"></span>Callback</td>
+                    <td class="score">9.1</td>
+                    <td class="phone">073-556 01 12</td>
+                    <td class="when">2026-04-19</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" checked aria-label="Markera rad" /></td>
+                    <td class="addr">Storgatan 8</td>
+                    <td class="city">Ludvika</td>
+                    <td class="status"><span class="dot s"></span>Ny</td>
+                    <td class="score">8.9</td>
+                    <td class="phone">070-201 44 90</td>
+                    <td class="when">—</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Östermalmsgatan 8</td>
+                    <td class="city">Falun</td>
+                    <td class="status"><span class="dot g"></span>Intresserad</td>
+                    <td class="score">8.7</td>
+                    <td class="phone">076-334 12 87</td>
+                    <td class="when">2026-04-18</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Björnvägen 3</td>
+                    <td class="city">Borlänge</td>
+                    <td class="status"><span class="dot y"></span>Callback</td>
+                    <td class="score">8.5</td>
+                    <td class="phone">072-901 55 44</td>
+                    <td class="when">2026-04-17</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Kyrkogatan 19</td>
+                    <td class="city">Hedemora</td>
+                    <td class="status"><span class="dot s"></span>Ny</td>
+                    <td class="score">8.3</td>
+                    <td class="phone">070-118 62 03</td>
+                    <td class="when">—</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Tegelvägen 7</td>
+                    <td class="city">Falun</td>
+                    <td class="status"><span class="dot r"></span>Avböjd</td>
+                    <td class="score">8.0</td>
+                    <td class="phone">073-445 11 29</td>
+                    <td class="when">2026-04-15</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Hantverkaregatan 22</td>
+                    <td class="city">Säter</td>
+                    <td class="status"><span class="dot s"></span>Ny</td>
+                    <td class="score">7.8</td>
+                    <td class="phone">070-992 31 15</td>
+                    <td class="when">—</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Skogsvägen 5</td>
+                    <td class="city">Borlänge</td>
+                    <td class="status"><span class="dot g"></span>Intresserad</td>
+                    <td class="score">7.6</td>
+                    <td class="phone">076-220 84 70</td>
+                    <td class="when">2026-04-16</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Linnégatan 14</td>
+                    <td class="city">Falun</td>
+                    <td class="status"><span class="dot s"></span>Ny</td>
+                    <td class="score">7.5</td>
+                    <td class="phone">070-601 43 22</td>
+                    <td class="when">—</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Karlavägen 31</td>
+                    <td class="city">Smedjebacken</td>
+                    <td class="status"><span class="dot y"></span>Callback</td>
+                    <td class="score">7.3</td>
+                    <td class="phone">072-117 59 06</td>
+                    <td class="when">2026-04-14</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Bergsgatan 9</td>
+                    <td class="city">Ludvika</td>
+                    <td class="status"><span class="dot s"></span>Ny</td>
+                    <td class="score">7.1</td>
+                    <td class="phone">073-808 27 44</td>
+                    <td class="when">—</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Lindvägen 18</td>
+                    <td class="city">Falun</td>
+                    <td class="status"><span class="dot r"></span>Avböjd</td>
+                    <td class="score">6.9</td>
+                    <td class="phone">070-341 60 88</td>
+                    <td class="when">2026-04-12</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Ängsvägen 4</td>
+                    <td class="city">Avesta</td>
+                    <td class="status"><span class="dot s"></span>Ny</td>
+                    <td class="score">6.7</td>
+                    <td class="phone">076-556 99 02</td>
+                    <td class="when">—</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Bryggaregatan 11</td>
+                    <td class="city">Borlänge</td>
+                    <td class="status"><span class="dot g"></span>Intresserad</td>
+                    <td class="score">6.5</td>
+                    <td class="phone">070-772 48 19</td>
+                    <td class="when">2026-04-13</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Nygatan 2</td>
+                    <td class="city">Hedemora</td>
+                    <td class="status"><span class="dot y"></span>Callback</td>
+                    <td class="score">6.3</td>
+                    <td class="phone">073-219 04 55</td>
+                    <td class="when">2026-04-11</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Industrigatan 27</td>
+                    <td class="city">Falun</td>
+                    <td class="status"><span class="dot s"></span>Ny</td>
+                    <td class="score">6.1</td>
+                    <td class="phone">070-988 33 71</td>
+                    <td class="when">—</td>
+                  </tr>
+                  <tr>
+                    <td class="cb"><input type="checkbox" aria-label="Markera rad" /></td>
+                    <td class="addr">Solvägen 6</td>
+                    <td class="city">Säter</td>
+                    <td class="status"><span class="dot s"></span>Ny</td>
+                    <td class="score">5.9</td>
+                    <td class="phone">076-112 48 90</td>
+                    <td class="when">—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Drawer -->
+            <aside class="drawer" aria-label="Förhandsgranskning">
+              <div class="k">Förhandsgranskning</div>
+              <h3>Sveagatan 12</h3>
+              <div class="sub">Falun · 791 47 · Dalarnas län</div>
+              <div class="row">
+                <span class="l">Status</span
+                ><span class="v"><span class="dot g"></span>Intresserad</span>
+              </div>
+              <div class="row"><span class="l">Score</span><span class="v">9.4</span></div>
+              <div class="row"><span class="l">Takvinkel</span><span class="v">34°</span></div>
+              <div class="row"><span class="l">Takyta</span><span class="v">148 m²</span></div>
+              <div class="row">
+                <span class="l">Azimut</span><span class="v">182° (söder)</span>
+              </div>
+              <div class="row">
+                <span class="l">Årsproduktion</span><span class="v">26 400 kWh</span>
+              </div>
+              <div class="row">
+                <span class="l">Telefon</span><span class="v">070-412 88 21</span>
+              </div>
+              <div class="row">
+                <span class="l">Senast kontaktad</span><span class="v">2026-04-20</span>
+              </div>
+              <div class="row"><span class="l">Noteringar</span><span class="v">2</span></div>
+              <div class="actions">
+                <button class="btn-primary">Öppna</button>
+                <button class="btn">Berika</button>
+              </div>
+            </aside>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

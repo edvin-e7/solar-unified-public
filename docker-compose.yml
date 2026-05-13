@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: ./backend
+    user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - "8000:8000"
+    env_file: .env
+    volumes:
+      - ./backend:/app
+      - ./frontend/dist:/frontend/dist:ro
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    image: node:20
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+    command: sh -c "corepack enable && pnpm install --strict-peer-dependencies=false && pnpm dev --host"
+    environment:
+      VITE_API_URL: http://localhost:8000
+

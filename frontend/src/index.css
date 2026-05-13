@@ -1,0 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Recoleta:wght@400;500;700&family=Public+Sans:ital,wght@0,300..700;1,400&family=JetBrains+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
+@import "./design/tokens.css";
+
+@theme {
+  --color-paper: #f5f1ea;
+  --color-paper-tint: #ebe5d9;
+  --color-ink: #0d1218;
+  --color-rule: rgba(13, 18, 24, 0.12);
+  --color-amber: #d06e29;
+  --color-forest: #2b4f3c;
+  --color-stone: #8a8780;
+  --color-barn: #a23434;
+  --color-leaf: #c69a4d;
+  --font-display: "Recoleta", Georgia, serif;
+  --font-sans: "Public Sans", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}

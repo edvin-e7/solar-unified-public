@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard — Error state (mock)</title>
+    <style>
+      :root {
+        --paper: #f5f1ea;
+        --paper-tint: #ebe5d9;
+        --ink: #0d1218;
+        --ink-80: rgba(13, 18, 24, 0.8);
+        --ink-60: rgba(13, 18, 24, 0.6);
+        --ink-20: rgba(13, 18, 24, 0.2);
+        --rule: rgba(13, 18, 24, 0.12);
+        --amber: #d06e29;
+        --forest: #2b4f3c;
+        --stone: #8a8780;
+        --barn: #a23434;
+        --leaf: #c69a4d;
+        --azure: #2f5ec9;
+
+        --sb-bg: #1a1a24;
+        --sb-edge: rgba(255, 255, 255, 0.06);
+        --sb-text: rgba(255, 255, 255, 0.72);
+        --sb-text-strong: #f2ece0;
+        --sb-icon: rgba(255, 255, 255, 0.55);
+        --sb-hover: rgba(255, 255, 255, 0.05);
+        --sb-active: rgba(255, 255, 255, 0.04);
+        --sb-muted: rgba(255, 255, 255, 0.4);
+
+        --font-display: "GT Alpina", "Playfair Display", "Recoleta", Georgia, serif;
+        --font-body: "Inter", "Public Sans", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", "Berkeley Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "tnum", "ss01", "cv11";
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      :focus-visible {
+        outline: 2px solid var(--azure);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 248px 1fr;
+        min-height: 100vh;
+      }
+
+      /* ───────────── Sidebar ───────────── */
+      .sidebar {
+        background: var(--sb-bg);
+        color: var(--sb-text);
+        border-right: 1px solid var(--sb-edge);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+      }
+      .sb-head {
+        padding: 20px 16px 16px;
+        border-bottom: 1px solid var(--sb-edge);
+      }
+      .sb-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-logo {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+      }
+      .sb-wordmark {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: var(--sb-text-strong);
+      }
+      .sb-tagline {
+        margin-top: 8px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+
+      .sb-section {
+        padding: 12px 16px 6px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sb-muted);
+      }
+
+      .nav {
+        list-style: none;
+        padding: 0 8px;
+        margin: 0;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .nav::-webkit-scrollbar {
+        width: 6px;
+      }
+      .nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+      }
+      .nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 14px;
+        font-weight: 450;
+        color: var(--sb-text);
+        border-left: 2px solid transparent;
+        border-radius: 2px;
+        transition:
+          background 120ms ease,
+          color 120ms ease;
+      }
+      .nav a svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        color: var(--sb-icon);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: 0 0 16px;
+        transition: color 120ms ease;
+      }
+      .nav a:hover {
+        background: var(--sb-hover);
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a:hover svg {
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .nav a[aria-current="page"] {
+        background: var(--sb-active);
+        border-left-color: var(--amber);
+        color: var(--sb-text-strong);
+      }
+      .nav a[aria-current="page"] svg {
+        color: var(--amber);
+      }
+
+      .sb-user {
+        border-top: 1px solid var(--sb-edge);
+        padding: 12px 16px 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        flex: 0 0 32px;
+      }
+      .sb-user-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .sb-user-name {
+        font-size: 14px;
+        color: var(--sb-text-strong);
+        line-height: 1.2;
+      }
+      .sb-user-email {
+        font-size: 11px;
+        color: var(--sb-muted);
+        line-height: 1.2;
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sb-chev {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        color: var(--sb-muted);
+        stroke-width: 1.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .sb-version {
+        padding: 4px 16px 12px;
+        text-align: center;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.25);
+        letter-spacing: 0.04em;
+      }
+
+      /* ───────────── Status banner ───────────── */
+      .status-banner {
+        border-top: 1px solid var(--amber);
+        border-bottom: 1px solid var(--amber);
+        background: var(--paper-tint);
+        color: var(--ink-80);
+        padding: 12px 40px;
+        font-size: 13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+      .status-banner .msg {
+        font-variant-numeric: tabular-nums;
+      }
+      .status-banner .retry {
+        color: var(--azure);
+        border-bottom: 1px solid var(--azure);
+        padding-bottom: 1px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+      }
+      .status-banner .retry svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        stroke-width: 1.75;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* ───────────── Main ───────────── */
+      main {
+        padding: 40px 40px 48px;
+        max-width: 1280px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .greet {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+      }
+      .greet h1 {
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 400;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+      }
+      .greet h1 em {
+        font-style: normal;
+        color: var(--amber);
+      }
+      .greet .meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+        font-variant-numeric: tabular-nums;
+      }
+      .lede {
+        color: var(--ink-80);
+        font-size: 16px;
+        line-height: 1.6;
+        max-width: 62ch;
+        margin-bottom: 48px;
+      }
+
+      /* KPI row */
+      .today {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        margin-bottom: 48px;
+        border-radius: 2px;
+      }
+      .today .cell {
+        padding: 20px 24px;
+        border-right: 1px solid var(--rule);
+      }
+      .today .cell:last-child {
+        border-right: none;
+      }
+      .today .l {
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+      .today .v {
+        font-family: var(--font-body);
+        font-size: 32px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        color: var(--ink-20);
+        margin-top: 8px;
+        line-height: 1;
+        letter-spacing: -0.01em;
+      }
+      .today .trend {
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--ink-60);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* CTA grid */
+      .cta-wrap {
+        display: grid;
+        grid-template-columns: 1fr 296px;
+        gap: 24px;
+        margin-bottom: 48px;
+      }
+      .cta-col {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .cta {
+        background: var(--paper);
+        border: 1px solid var(--rule);
+        border-left: 3px solid var(--amber);
+        padding: 28px 32px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: center;
+        cursor: pointer;
+        transition:
+          background 180ms cubic-bezier(0.32, 0.72, 0.28, 1),
+          border-color 180ms;
+        border-radius: 2px;
+      }
+      .cta:hover {
+        background: var(--paper-tint);
+      }
+      .cta .k {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 10px;
+        color: var(--amber);
+        margin-bottom: 8px;
+      }
+      .cta h3 {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        margin-bottom: 8px;
+        line-height: 1.2;
+      }
+      .cta p {
+        color: var(--ink-80);
+        font-size: 14px;
+        line-height: 1.55;
+        max-width: 60ch;
+      }
+      .cta .hint {
+        margin-top: 12px;
+        font-size: 11px;
+        color: var(--ink-60);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+      }
+      .cta .hint kbd {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 2px 6px;
+        border: 1px solid var(--rule);
+        background: var(--paper-tint);
+        border-radius: 2px;
+        color: var(--ink);
+        line-height: 1.2;
+      }
+      .cta .hint .sep {
+        color: var(--ink-20);
+        margin: 0 4px;
+      }
+      .cta .arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        color: var(--amber);
+      }
+      .cta .arrow svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        stroke-width: 1.75;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: transform 180ms cubic-bezier(0.32, 0.72, 0.28, 1);
+      }
+      .cta:hover .arrow svg {
+        transform: translateX(4px);
+      }
+
+      .cta.secondary {
+        border-left-color: var(--forest);
+      }
+      .cta.secondary .k {
+        color: var(--forest);
+      }
+      .cta.secondary .arrow {
+        color: var(--forest);
+      }
+      .cta.tertiary {
+        border-left-color: var(--leaf);
+      }
+      .cta.tertiary .k {
+        color: var(--leaf);
+      }
+      .cta.tertiary .arrow {
+        color: var(--leaf);
+      }
+
+      /* Right rail */
+      .side {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .side-card {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        border-radius: 4px;
+        padding: 20px;
+      }
+      .side-card h4 {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--rule);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .side-card h4 .c {
+        font-family: var(--font-body);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--forest);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .side-card h4 .c::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: var(--forest);
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .side-card h4 .c.muted {
+        color: var(--ink-60);
+      }
+      .side-card h4 .c.muted::before {
+        display: none;
+      }
+      .side-card .fallback {
+        padding: 24px 8px;
+        text-align: center;
+        color: var(--ink-60);
+        font-size: 13px;
+        font-style: italic;
+      }
+
+      .kpi-note {
+        margin-top: 6px;
+        font-size: 11px;
+        color: var(--ink-60);
+      }
+
+      /* Agent footer strip */
+      .agent-strip {
+        margin-top: auto;
+        border-top: 2px solid var(--ink);
+        padding-top: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+      .agent-strip .l {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+      .dots {
+        display: flex;
+        gap: 20px;
+      }
+      .dots .agent {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+      }
+      .dots .agent .d {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--ink-20);
+      }
+      .dots .agent .ts {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-60);
+        margin-left: 4px;
+        font-variant-numeric: tabular-nums;
+      }
+      .agent-strip .link {
+        font-size: 12px;
+        color: var(--azure);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border-bottom: 1px solid var(--azure);
+        padding-bottom: 1px;
+      }
+      .agent-strip .link svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
+        stroke-width: 1.75;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" aria-label="Primär navigation">
+        <div class="sb-head">
+          <div class="sb-brand">
+            <svg class="sb-logo" viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="10" cy="7" r="2.6" fill="#d06e29" />
+              <path d="M1.5 15.5 L10 8.5 L18.5 15.5 Z" fill="#d06e29" opacity="0.9" />
+              <path d="M4 15.5 L10 10.5 L16 15.5 Z" fill="#1a1a24" />
+            </svg>
+            <span class="sb-wordmark">Edvin Solar</span>
+          </div>
+          <div class="sb-tagline">Prospect Agent System</div>
+        </div>
+
+        <div class="sb-section">Workspace</div>
+        <ul class="nav" role="list">
+          <li>
+            <a href="#dashboard" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="9" rx="1" />
+                <rect x="14" y="3" width="7" height="5" rx="1" />
+                <rect x="14" y="12" width="7" height="9" rx="1" />
+                <rect x="3" y="16" width="7" height="5" rx="1" />
+              </svg>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#prospekt">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <span>Prospekt</span>
+            </a>
+          </li>
+          <li>
+            <a href="#sok">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" />
+              </svg>
+              <span>Sök</span>
+            </a>
+          </li>
+          <li>
+            <a href="#detektion">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                <circle cx="12" cy="12" r="1.5" />
+                <path d="M18 12a6 6 0 0 1-12 0 6 6 0 0 1 12 0z" />
+              </svg>
+              <span>Detektion</span>
+            </a>
+          </li>
+          <li>
+            <a href="#karta">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z" />
+                <path d="M9 3v15" />
+                <path d="M15 6v15" />
+              </svg>
+              <span>Karta</span>
+            </a>
+          </li>
+          <li>
+            <a href="#agenter">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2v4" />
+                <rect x="4" y="6" width="16" height="12" rx="2" />
+                <path d="M2 14h2" />
+                <path d="M20 14h2" />
+                <circle cx="9" cy="12" r="1" />
+                <circle cx="15" cy="12" r="1" />
+                <path d="M9 16h6" />
+              </svg>
+              <span>Agenter</span>
+            </a>
+          </li>
+          <li>
+            <a href="#berikning">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3l1.9 4.9L19 10l-5.1 2.1L12 17l-1.9-4.9L5 10l5.1-2.1L12 3z" />
+                <path d="M19 17l.9 2.1L22 20l-2.1.9L19 23l-.9-2.1L16 20l2.1-.9L19 17z" />
+                <path d="M5 3l.6 1.4L7 5l-1.4.6L5 7l-.6-1.4L3 5l1.4-.6L5 3z" />
+              </svg>
+              <span>Berikning</span>
+            </a>
+          </li>
+          <li>
+            <a href="#installningar">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+                />
+              </svg>
+              <span>Inställningar</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="sb-user" role="button" tabindex="0" aria-label="Konto: Edvin Pierre">
+          <div class="sb-avatar" aria-hidden="true">EP</div>
+          <div class="sb-user-meta">
+            <div class="sb-user-name">Edvin Pierre</div>
+            <div class="sb-user-email">edvin.pierre03@gmail.com</div>
+          </div>
+          <svg class="sb-chev" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 15l-6-6-6 6" />
+          </svg>
+        </div>
+        <div class="sb-version">v0.1.0</div>
+      </aside>
+
+      <main>
+        <div class="status-banner" role="status" aria-live="polite">
+          <span class="msg">Backend svarar inte. Senaste lyckade hämtning: 14:28.</span>
+          <a class="retry" href="#retry" aria-label="Försök igen">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-3.5-7.1" />
+              <path d="M21 3v6h-6" />
+            </svg>
+            <span>Försök igen</span>
+          </a>
+        </div>
+
+        <div class="greet" style="margin-top: 40px">
+          <h1>God eftermiddag, <em>Edvin</em></h1>
+          <div class="meta">TIS 21 APR · 14:32 · Falun</div>
+        </div>
+        <p class="lede">
+          Tjugotre nya prospekt väntar. Du kan berika dem nu, köra paneldetektion på dagens kö,
+          eller titta på de högst rankade. Välj där du vill börja.
+        </p>
+
+        <section class="today" aria-label="Dagens nyckeltal">
+          <div class="cell">
+            <div class="l">Nya idag</div>
+            <div class="v tabular">—</div>
+            <div class="kpi-note">kunde inte hämta</div>
+          </div>
+          <div class="cell">
+            <div class="l">Berikade idag</div>
+            <div class="v tabular">—</div>
+            <div class="kpi-note">kunde inte hämta</div>
+          </div>
+          <div class="cell">
+            <div class="l">Detekterade idag</div>
+            <div class="v tabular">—</div>
+            <div class="kpi-note">kunde inte hämta</div>
+          </div>
+          <div class="cell">
+            <div class="l">Kö (berikning)</div>
+            <div class="v tabular">—</div>
+            <div class="kpi-note">kunde inte hämta</div>
+          </div>
+        </section>
+
+        <section class="cta-wrap">
+          <div class="cta-col">
+            <a class="cta" href="#prospekt">
+              <div>
+                <div class="k">01 · Vanligaste start</div>
+                <h3>Klistra in adresser</h3>
+                <p>
+                  Lägg till nya prospekt genom att klistra in en rå lista adresser — en per rad.
+                  Duplikater hanteras automatiskt. Ex. "Sveagatan 12, Falun".
+                </p>
+                <div class="hint">
+                  <span>Kortkommando</span>
+                  <kbd>Ctrl</kbd><span>+</span><kbd>V</kbd>
+                  <span>på Prospekt-sidan</span>
+                  <span class="sep">·</span>
+                  <span>eller</span>
+                  <kbd>G</kbd><kbd>P</kbd>
+                </div>
+              </div>
+              <div class="arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M5 12h14" />
+                  <path d="M13 5l7 7-7 7" />
+                </svg>
+              </div>
+            </a>
+
+            <a class="cta secondary" href="#detektion">
+              <div>
+                <div class="k">02 · Bearbeta kön</div>
+                <h3>Kör paneldetektion</h3>
+                <p>
+                  Sextio prospekt väntar på att få sina tak analyserade. Köra hela kön tar cirka 4
+                  minuter och kostar inget (PVGIS + Nominatim, gratis).
+                </p>
+                <div class="hint">
+                  <span>Gate</span>
+                  <kbd>ALLOW_GOOGLE_SOLAR_API</kbd>
+                  <span>= OFF</span>
+                  <span class="sep">·</span>
+                  <span>endast gratis-API:er</span>
+                </div>
+              </div>
+              <div class="arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M5 12h14" />
+                  <path d="M13 5l7 7-7 7" />
+                </svg>
+              </div>
+            </a>
+
+            <a class="cta tertiary" href="#top">
+              <div>
+                <div class="k">03 · Följ upp</div>
+                <h3>Visa toppprospekt</h3>
+                <p>
+                  Se dagens högst rankade — de sju med score ≥ 8.0 efter nattens körning. Sortera på
+                  kWh-potential eller takvinkel.
+                </p>
+                <div class="hint">
+                  <span>Öppnar Prospekt-sidan med filter</span>
+                  <kbd>score ≥ 8.0</kbd>
+                </div>
+              </div>
+              <div class="arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M5 12h14" />
+                  <path d="M13 5l7 7-7 7" />
+                </svg>
+              </div>
+            </a>
+          </div>
+
+          <aside class="side" aria-label="Sidopanel">
+            <div class="side-card">
+              <h4>Senaste händelser <span class="c muted">ej tillgänglig</span></h4>
+              <div class="fallback">— data ej tillgänglig —</div>
+            </div>
+            <div class="side-card">
+              <h4>Dagens topp 3 <span class="c muted">ej tillgänglig</span></h4>
+              <div class="fallback">— data ej tillgänglig —</div>
+            </div>
+          </aside>
+        </section>
+
+        <footer class="agent-strip">
+          <span class="l">Agentstatus</span>
+          <div class="dots">
+            <div class="agent">
+              <span class="d"></span><span class="n">PanelAgent</span><span class="ts">—</span>
+            </div>
+            <div class="agent">
+              <span class="d"></span><span class="n">ScoreAgent</span><span class="ts">—</span>
+            </div>
+            <div class="agent">
+              <span class="d"></span><span class="n">PatternAgent</span><span class="ts">—</span>
+            </div>
+            <div class="agent">
+              <span class="d"></span><span class="n">PIIFilter</span><span class="ts">—</span>
+            </div>
+            <div class="agent">
+              <span class="d"></span><span class="n">ImageAgent</span><span class="ts">—</span>
+            </div>
+          </div>
+          <a class="link" href="#agenter" aria-label="Öppna Agenter">
+            <span>Öppna Agenter</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="M13 5l7 7-7 7" />
+            </svg>
+          </a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

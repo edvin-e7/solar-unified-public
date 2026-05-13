@@ -1,0 +1,8 @@
+# Sample Swedish addresses for eval_detection.py
+# One address per line, # for comments.
+# Replace with your own labelled-or-known addresses for meaningful eval.
+Drottninggatan 1, Stockholm
+Avenyn 15, Göteborg
+Stortorget 3, Malmö
+Storgatan 10, Uppsala
+Kungsgatan 25, Linköping

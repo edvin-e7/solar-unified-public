@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "solar-unified-backend"
+version = "0.1.0"
+description = "Solar prospecting backend for Swedish market"
+authors = [{name = "Edvin Pierre", email = "edvin.pierre03@gmail.com"}]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.120.0",
+    "uvicorn>=0.30.0",
+    "google-genai>=0.4.0",
+    "httpx>=0.28.0",
+    "pillow>=10.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agents*", "api*", "services*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+exclude = [".venv", "venv", "__pycache__"]
+
+[tool.ruff.lint]
+# Categories we explicitly accept as legitimate patterns:
+ignore = [
+    "BLE001",   # blind-except: many uses are intentional with # noqa already
+    "E402",     # module-import-not-at-top: env-load order matters in main.py
+    "RUF001",   # ambiguous-unicode-string: svenska chars in user-facing strings
+    "RUF002",   # ambiguous-unicode-docstring: svenska chars in docstrings (intentional)
+    "RUF003",   # ambiguous-unicode-comment: svenska chars in comments
+    "N803",     # invalid-argument-name `X`: sklearn-conv design-matrix naming
+    "N806",     # non-lowercase-variable: same — `X`, `Xs` etc
+    "N818",     # error-suffix-on-exception-name: HittaEmpty/HittaBlocked preserved
+]
+
+[tool.ruff.lint.per-file-ignores]
+"specs/*.py" = ["E741"]    # ambiguous-var `l` in test iteration acceptable
+"scripts/*.py" = ["B904"]  # script-level raise patterns

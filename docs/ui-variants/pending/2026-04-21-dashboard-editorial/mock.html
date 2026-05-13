@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard — Editorial (mock)</title>
+    <style>
+      :root {
+        --paper: #f5f1ea;
+        --paper-tint: #ebe5d9;
+        --ink: #0d1218;
+        --ink-60: rgba(13, 18, 24, 0.6);
+        --ink-20: rgba(13, 18, 24, 0.2);
+        --rule: rgba(13, 18, 24, 0.12);
+        --amber: #d06e29;
+        --forest: #2b4f3c;
+        --stone: #8a8780;
+        --barn: #a23434;
+        --leaf: #c69a4d;
+        --font-display: "Recoleta", "GT Sectra", Georgia, serif;
+        --font-body: "Public Sans", "Söhne", "Inter", ui-sans-serif, sans-serif;
+        --font-mono: "JetBrains Mono", "Berkeley Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+      }
+      .caps {
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 11px;
+        color: var(--ink-60);
+      }
+      .display {
+        font-family: var(--font-display);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 224px 1fr;
+        min-height: 100vh;
+      }
+      .sidebar {
+        background: var(--ink);
+        color: var(--paper-tint);
+        padding: 22px 18px;
+      }
+      .sidebar .brand {
+        font-family: var(--font-display);
+        font-size: 20px;
+        color: var(--paper);
+      }
+      .sidebar .sub {
+        color: rgba(245, 241, 234, 0.5);
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-top: 4px;
+        margin-bottom: 24px;
+      }
+      .nav {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        font-size: 13px;
+      }
+      .nav li {
+        padding: 7px 10px;
+        border-radius: 2px;
+        color: rgba(245, 241, 234, 0.75);
+      }
+      .nav li.active {
+        background: rgba(245, 241, 234, 0.08);
+        border-left: 2px solid #5b8def;
+        color: var(--paper);
+        padding-left: 8px;
+      }
+      .sidebar .foot {
+        position: fixed;
+        bottom: 16px;
+        font-size: 10px;
+        color: rgba(245, 241, 234, 0.35);
+        font-family: var(--font-mono);
+      }
+
+      main {
+        padding: 48px 72px 80px;
+        max-width: 1140px;
+      }
+      /* Masthead */
+      .masthead {
+        border-top: 2px solid var(--ink);
+        border-bottom: 1px solid var(--rule);
+        padding: 14px 0 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .masthead .title {
+        font-family: var(--font-display);
+        font-size: 34px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+      }
+      .masthead .title em {
+        font-style: italic;
+        color: var(--amber);
+        font-weight: 500;
+      }
+      .masthead .date {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-60);
+        letter-spacing: 0.06em;
+      }
+      .dateline {
+        display: flex;
+        gap: 28px;
+        padding: 8px 0 0;
+        font-size: 11px;
+        color: var(--ink-60);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 10px;
+        margin-bottom: 48px;
+      }
+      .dateline span b {
+        color: var(--ink);
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        margin-left: 6px;
+      }
+
+      /* Hero numeral */
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) 1fr;
+        gap: 56px;
+        align-items: end;
+        margin-bottom: 56px;
+      }
+      .hero .kicker {
+        font-family: var(--font-body);
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-size: 11px;
+        color: var(--amber);
+        margin-bottom: 10px;
+      }
+      .hero .numeral {
+        font-family: var(--font-display);
+        font-weight: 500;
+        font-size: 168px;
+        line-height: 0.92;
+        letter-spacing: -0.04em;
+        font-variant-numeric: oldstyle-nums tabular-nums;
+      }
+      .hero .caption {
+        font-family: var(--font-display);
+        font-size: 22px;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+        margin-top: 14px;
+        color: var(--ink);
+      }
+      .hero .caption .sub {
+        display: block;
+        color: var(--ink-60);
+        font-size: 14px;
+        margin-top: 8px;
+        font-family: var(--font-body);
+        letter-spacing: 0;
+      }
+      .hero aside {
+        border-left: 1px solid var(--rule);
+        padding-left: 28px;
+        color: var(--ink-60);
+        font-size: 13px;
+      }
+      .hero aside h3 {
+        font-family: var(--font-display);
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 10px;
+        font-weight: 500;
+      }
+      .hero aside ul {
+        list-style: none;
+      }
+      .hero aside li {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px dotted var(--rule);
+        font-family: var(--font-mono);
+        font-size: 12px;
+      }
+      .hero aside li:last-child {
+        border-bottom: none;
+      }
+      .hero aside li span:last-child {
+        color: var(--ink);
+      }
+
+      /* Pull quote */
+      .pullquote {
+        border-top: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+        padding: 40px 0;
+        margin-bottom: 48px;
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 40px;
+        align-items: start;
+      }
+      .pullquote .meta {
+        font-family: var(--font-body);
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+      .pullquote .meta b {
+        display: block;
+        color: var(--ink);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        margin-top: 6px;
+        font-weight: 500;
+      }
+      .pullquote .meta .stamp {
+        display: inline-block;
+        margin-top: 14px;
+        padding: 3px 8px;
+        border: 1px solid var(--amber);
+        color: var(--amber);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+      }
+      .pullquote blockquote {
+        font-family: var(--font-display);
+        font-size: 30px;
+        line-height: 1.28;
+        letter-spacing: -0.015em;
+        color: var(--ink);
+        font-weight: 400;
+      }
+      .pullquote blockquote::first-letter {
+        font-family: var(--font-display);
+        font-size: 68px;
+        float: left;
+        line-height: 0.85;
+        padding: 6px 10px 0 0;
+        color: var(--amber);
+        font-weight: 500;
+      }
+      .pullquote cite {
+        display: block;
+        margin-top: 20px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-style: normal;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-60);
+      }
+
+      /* Stat ribbon */
+      .ribbon {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        border-top: 1px solid var(--ink);
+        border-bottom: 1px solid var(--ink);
+        padding: 18px 0;
+        margin-bottom: 56px;
+      }
+      .rib {
+        padding: 0 22px;
+        border-right: 1px solid var(--rule);
+      }
+      .rib:last-child {
+        border-right: none;
+      }
+      .rib .l {
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 10px;
+        color: var(--ink-60);
+      }
+      .rib .v {
+        font-family: var(--font-display);
+        font-size: 30px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        margin-top: 4px;
+        font-variant-numeric: oldstyle-nums tabular-nums;
+      }
+      .rib .d {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        margin-top: 3px;
+        color: var(--ink-60);
+      }
+      .rib .d.up {
+        color: var(--forest);
+      }
+      .rib .d.dn {
+        color: var(--barn);
+      }
+
+      /* Columns — agenda + dagens fynd */
+      .columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 64px;
+        column-gap: 56px;
+      }
+      .col h2 {
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+        margin-bottom: 14px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--rule);
+      }
+      .col h2 .idx {
+        color: var(--amber);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        margin-right: 10px;
+        vertical-align: middle;
+      }
+      .col ul {
+        list-style: none;
+      }
+      .col li {
+        padding: 10px 0;
+        border-bottom: 1px dotted var(--rule);
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: baseline;
+      }
+      .col li:last-child {
+        border-bottom: none;
+      }
+      .col li .a {
+        font-family: var(--font-display);
+        font-size: 16px;
+        color: var(--ink);
+        letter-spacing: -0.005em;
+      }
+      .col li .m {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-60);
+      }
+      .col li .m b {
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      .colophon {
+        margin-top: 64px;
+        padding-top: 16px;
+        border-top: 2px solid var(--ink);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-60);
+        letter-spacing: 0.04em;
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">Edvin Solar</div>
+        <div class="sub">Prospect Agent System</div>
+        <ul class="nav">
+          <li class="active">◼ Dashboard</li>
+          <li>☰ Prospekt</li>
+          <li>🔍 Sök</li>
+          <li>⬤ Detektion</li>
+          <li>☇ Karta</li>
+          <li>⚙ Agenter</li>
+          <li>↻ Berikning</li>
+          <li>🛠 Inställningar</li>
+        </ul>
+        <div class="foot">v0.1.0</div>
+      </aside>
+      <main>
+        <header class="masthead">
+          <div class="title">Solar <em>Almanackan</em></div>
+          <div class="date">Nr 112 · Tisdag 21 april MMXXVI</div>
+        </header>
+        <div class="dateline">
+          <span>Region<b>Dalarna &amp; Bergslagen</b></span>
+          <span>Väder<b>Klart · 7°C</b></span>
+          <span>Instrålning<b>4.8 kWh/m²</b></span>
+          <span>System<b>Alla agenter igång</b></span>
+        </div>
+
+        <section class="hero">
+          <div>
+            <div class="kicker">Dagens räkning · prospekt i arkivet</div>
+            <div class="numeral">1,247</div>
+            <div class="caption">
+              Tjugotre nya hushåll tillkom sedan gryningen; fyrtiosju berikades.
+              <span class="sub"
+                >Av dessa bär sjuttioen redan paneler — ett rekord för säsongen.</span
+              >
+            </div>
+          </div>
+          <aside>
+            <h3>Dagens siffror</h3>
+            <ul>
+              <li><span>Nya prospekt</span><span>+23</span></li>
+              <li><span>Berikade</span><span>+47</span></li>
+              <li><span>Detekterade</span><span>+12</span></li>
+              <li><span>Fel &amp; retries</span><span>4</span></li>
+              <li><span>Gemini-kvot</span><span>42 / 60</span></li>
+            </ul>
+          </aside>
+        </section>
+
+        <section class="pullquote">
+          <div class="meta">
+            Insikt
+            <b>PatternAgent</b>
+            <span class="stamp">CoVe · 0.89</span>
+          </div>
+          <div>
+            <blockquote>
+              Hushåll med takvinkel omkring 35 grader och söderläge i Dalarna uppvisar 18 procent
+              högre konverteringsgrad — och de är fortfarande underrepresenterade i arkivet.
+            </blockquote>
+            <cite>Insikt · PatternAgent · genererad 14:24 · cache fräsch 24 tim</cite>
+          </div>
+        </section>
+
+        <section class="ribbon">
+          <div class="rib">
+            <div class="l">Konv.grad</div>
+            <div class="v tabular">18.4%</div>
+            <div class="d dn">▼ 0.6 pp v/v</div>
+          </div>
+          <div class="rib">
+            <div class="l">Berikningsgrad</div>
+            <div class="v tabular">73.1%</div>
+            <div class="d up">▲ 2.1 pp</div>
+          </div>
+          <div class="rib">
+            <div class="l">Medel score</div>
+            <div class="v tabular">6.83</div>
+            <div class="d up">▲ 0.12</div>
+          </div>
+          <div class="rib">
+            <div class="l">kWh-potential</div>
+            <div class="v tabular">8.4M</div>
+            <div class="d up">▲ 214k</div>
+          </div>
+          <div class="rib">
+            <div class="l">CoVe-pass</div>
+            <div class="v tabular">87%</div>
+            <div class="d up">▲ 2 pp</div>
+          </div>
+        </section>
+
+        <section class="columns">
+          <div class="col">
+            <h2><span class="idx">§ I</span>Senaste händelser</h2>
+            <ul>
+              <li>
+                <span class="a">Sveagatan 12, Falun</span
+                ><span class="m">panel funnen · <b>9.4</b></span>
+              </li>
+              <li>
+                <span class="a">Kopparbergsvägen 44, Borlänge</span
+                ><span class="m">berikad · score 9.1</span>
+              </li>
+              <li>
+                <span class="a">Östermalmsgatan 8, Stockholm</span
+                ><span class="m">PVGIS timeout · retry</span>
+              </li>
+              <li>
+                <span class="a">Storgatan 8, Ludvika</span
+                ><span class="m">CoVe · 8 agenter OK</span>
+              </li>
+              <li>
+                <span class="a">CSV-import · 23 adresser</span><span class="m">kl. 14:28</span>
+              </li>
+            </ul>
+          </div>
+          <div class="col">
+            <h2><span class="idx">§ II</span>Dagens topprospekt</h2>
+            <ul>
+              <li>
+                <span class="a">Sveagatan 12, Falun</span
+                ><span class="m">11 240 kWh · <b>9.4</b></span>
+              </li>
+              <li>
+                <span class="a">Kopparbergsvägen 44, Borlänge</span
+                ><span class="m">10 880 kWh · <b>9.1</b></span>
+              </li>
+              <li>
+                <span class="a">Storgatan 8, Ludvika</span
+                ><span class="m">9 720 kWh · <b>8.9</b></span>
+              </li>
+              <li>
+                <span class="a">Tallvägen 3, Säter</span
+                ><span class="m">9 180 kWh · <b>8.6</b></span>
+              </li>
+              <li>
+                <span class="a">Björkgatan 27, Avesta</span
+                ><span class="m">8 940 kWh · <b>8.4</b></span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <div class="colophon">
+          <span>Edvin Solar — Almanackan · utgåva 112</span>
+          <span>Redaktion: PatternAgent, ScoreAgent, PanelAgent</span>
+          <span>Tryckt i Dalarna · paper-first</span>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
