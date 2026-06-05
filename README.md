@@ -1,102 +1,157 @@
 # solar-unified (public showcase)
 
-> ⚠️ **Public showcase version.** Prompts and autonomous-learning data are
-> abstracted for IP and PII protection. Full implementation lives in a
-> private fork by the maintainer.
+> ⚠️ **Public showcase version.** Prompt bodies and autonomous-learning data
+> are stubbed/abstracted for IP and PII protection. The full implementation
+> lives in a private fork maintained by the author. This snapshot is published
+> as an architecture showcase, not a turnkey product.
 
-Autonomous Swedish solar-prospecting system. Multi-agent coordinator, ML
-panel detection, CoVe-verified pipeline, self-modifying prompt loop.
+Swedish solar-prospecting system: take an address, pull rooftop satellite
+imagery, detect whether panels are already installed, score the lead, and
+draft an outreach pitch — coordinated by a small set of prompt-driven agents
+with a verification gate and a self-improving prompt loop.
+
+Built to run **zero-cost by default**: free geocoding (Nominatim), free
+imagery (ArcGIS World Imagery), and local vision/text via Ollama. Paid APIs
+(Google Solar, external Gemini) are env-gated **off** by default so you never
+get surprise billing.
 
 ## What this demonstrates
 
-- **Multi-agent coordinator pattern** orchestrating specialised agents
-  (analyser, pitcher, verifier) over a shared journal.
-- **ML-based panel detection** combining ONNX model + Moondream
-  (local vision LLM) on rooftop satellite imagery from ArcGIS Sweden.
-- **CoVe-style verification gate** that catches autonomous-learning
-  regressions before they reach production prompts.
-- **Issue Ledger pattern** — cross-session memory of fix attempts (key:
-  `(error_type, target)`) breaks the loop of re-trying solutions that
+- **Multi-agent coordinator** (`backend/agents/coordinator.py`) orchestrating
+  six specialised agents — `detection`, `scoring`, `pitch`, `pattern`,
+  `quality`, `ui_design` — over a shared journal, with a leaderboard and
+  per-agent action tracking.
+- **Pluggable panel-detection pipeline** with an `auto` dispatcher that picks
+  the first available backend: trained ML head (`embed` / `ml`) → local vision
+  LLM (`moondream` via Ollama) → paid Gemini Vision (gated). See
+  `backend/services/detection_*.py`.
+- **CoVe-style verification gate** (`backend/cove_verifier.py`,
+  `backend/agents/verification.py`) that re-checks `AUTO_FULL` agent decisions
+  before they take effect.
+- **Issue Ledger** (`backend/issue_ledger.py`) — cross-session memory keyed on
+  `(error_type, target)`, so the autonomous loop stops re-trying fixes that
   already failed.
-- **FastAPI backend** + **React 19 + Electron** desktop app.
-- **Prompt-driven agents** with versioned prompt files and structured
-  logging (`prompt_log.py`, `error_logger.py`, `learning_journal.py`).
-- **Autonomous-learning loop** — `autonomous_learner.py` + `self_improve.py`
-  propose prompt edits, CoVe verifier accepts/rejects, journal records
-  outcome.
+- **Autonomous-learning loop** (`backend/autonomous_learner.py`,
+  `backend/self_improve.py`) that proposes prompt edits; the CoVe verifier
+  accepts/rejects and the learning journal records the outcome.
+- **Spec-first testing** — every backend module has a paired spec in
+  `backend/specs/` (Markdown spec + `test_*.py`).
+- **FastAPI backend** + **React 19 / Vite** frontend, packaged for desktop
+  (Electron) and Android (Capacitor).
 
 ## Stack
 
 | Layer | Tech |
 |---|---|
-| Backend | FastAPI + Python 3.11+ |
-| Desktop | React 19 + Vite + Electron |
-| LLM | Gemini API (opt-in), Ollama (local default) |
-| Vision | Moondream (Ollama) + ONNX local model |
-| Geo | ArcGIS World Imagery, Nominatim (OpenStreetMap) |
+| Backend | FastAPI, Python ≥ 3.11 |
+| Frontend | React 19 + Vite + Tailwind 4, MapLibre GL |
+| Desktop / mobile | Electron, Capacitor (Android) |
+| Text LLM | Ollama (local default), Gemini (opt-in, gated) |
+| Vision | Moondream via Ollama, ONNX detection head, optional Gemini Vision |
+| Geo / imagery | Nominatim (OSM), ArcGIS World Imagery; PVGIS for solar potential |
 | Storage | SQLite, JSONL journals |
-| Deploy | Docker Compose, Cloudflare Tunnel |
+| Deploy | Docker Compose |
 
-## Running
+## Quickstart
 
-See `docs/DEPLOY.md` for the full deployment guide. Quick local dev:
+Requirements: Python ≥ 3.11, [pnpm](https://pnpm.io/), and (recommended)
+[Ollama](https://ollama.com) for free local LLM + vision.
 
 ```bash
 cp .env.example .env
-# Edit .env: set ALLOW_GOOGLE_SOLAR_API=0 (default — no paid APIs)
+# Defaults are free/local: ALLOW_GOOGLE_SOLAR_API=0, ALLOW_EXTERNAL_LLM=0,
+# LLM_PROVIDER=ollama, DETECTION_BACKEND=auto.
 
+make install        # backend venv + frontend pnpm deps
+make ml-moondream   # optional: pull the local vision model (~1.5 GB)
+make dev            # backend on :8000, frontend on :5173
+```
+
+To run components by hand instead of `make`:
+
+```bash
 # Backend
 cd backend
+python -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
-ollama pull moondream
-python -m uvicorn main:app --reload
+uvicorn main:app --reload --port 8000
 
-# Frontend
+# Frontend (separate shell)
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
+
+The backend checks for `GEMINI_API_KEY` at startup. It is **not** required to
+boot keyless / fully local — set `ALLOW_BOOT_WITHOUT_KEYS=1` (the
+`make dev-android` target does this automatically). `GOOGLE_MAPS_API_KEY` is
+only needed when `ALLOW_GOOGLE_SOLAR_API=1`.
+
+See `docs/DEPLOY.md` for production deployment and `docs/QA_MANUAL.md` for the
+end-to-end manual test path.
+
+## Detection backends
+
+Set via `DETECTION_BACKEND` in `.env`:
+
+| Value | Backend | Cost |
+|---|---|---|
+| `auto` (default) | `ml` → `embed` → `moondream` → `gemini`, first available wins | free unless it falls through to `gemini` |
+| `embed` | trained mobilenet head (`backend/models/head.npz`) | free |
+| `ml` | YOLOv8-seg ONNX (drop your own model file) | free |
+| `moondream` | local Ollama vision LLM | free |
+| `gemini` | Gemini Vision | paid — requires `ALLOW_EXTERNAL_LLM=1` |
+
+ML helper targets: `make ml-encoder`, `make ml-train`, `make ml-eval`,
+`make ml-test`, `make ml-bootstrap-labels`.
+
+## API surface
+
+FastAPI app (`backend/main.py`) mounts routers under `/api`:
+`/api/scan`, `/api/detect`, `/api/leads`, `/api/solar`, `/api/enrich`,
+`/api/prospects`, `/api/panels`, `/api/agents`, `/api/execute`,
+`/api/settings`. Interactive docs at `http://localhost:8000/docs`.
 
 ## Architecture write-ups
 
-- `PRD.md` — Product Requirements Document
+- `PRD.md` — product requirements
 - `docs/AUTONOMOUS_TRAINING.md` — how the self-improvement loop works
-- `docs/ISSUE_LEDGER.md` — cross-session memory pattern for debugging
+- `docs/ISSUE_LEDGER.md` — cross-session debugging memory pattern
 - `docs/BEST_OUTCOME_STRATEGY.md` — pipeline-design decisions
-- `docs/BACKUP.md` — backup + restore approach
-- `docs/DEPLOY.md` — production deployment
+- `docs/SWEDISH_APIS_REFERENCE.md` — geo/data sources used for the SE market
+- `docs/DEPLOY.md` / `docs/BACKUP.md` — deployment + backup/restore
+- `wiki/` — concepts, entities (API endpoints, schema), and goal progress
 
-## Prompts
+## Prompts & learning data
 
-The `backend/prompts/*.md` files in this public version are stubs. The full
-prompt content is private. To run your own deployment, replace each stub
-with Markdown following the loader convention in `backend/prompts_loader.py`.
-
-The `backend/prompts/learned/` directory (autonomous-learning data with
-prospect PII) is excluded entirely. The autonomous loop will start fresh
-on a new deployment.
+The `backend/prompts/*.md` files in this public version are **stubs** (the
+loader convention is in `backend/prompts_loader.py`). To run your own
+deployment, replace each stub with real Markdown. The autonomous-learning
+output directory (`backend/prompts/learned/`, which holds prospect-derived
+data) is **not** included — the loop starts fresh on a new deployment.
 
 ## Privacy & data handling
 
 Solar prospecting touches personal data (property addresses, registered
-owners). This codebase processes that data locally and never logs full
-records. See `SECURITY.md` for the threat model.
+owners). This codebase processes that locally and avoids logging full records.
+`backend/data/` and `private/` are gitignored and contain no data in this
+public repo.
 
 ## License
 
-MIT (see `LICENSE`).
+MIT — see `LICENSE`. The trained detection head under `backend/models/` has
+its own license note (`backend/models/LICENSE.md`).
 
 ## Author
 
-[Edvin Pierre](https://github.com/edvin-e7) — built as part of a personal
-project to bootstrap a Swedish solar-lead bureau. The private fork
-includes maintainer-specific prompts, real prospect data, and
-deployment-specific configuration. This public showcase keeps the
-architecture visible.
+[Edvin Pierre](https://github.com/edvin-e7) — built as a personal project to
+bootstrap a Swedish solar-lead bureau. The private fork carries the full
+commit history, real prompts, and deployment-specific config. This public
+snapshot keeps the architecture visible.
 
 ## Status
 
-This is a snapshot from active development. The private fork has the full
-241-commit history and moves faster. This public version is a fresh-init
-snapshot intended as an architecture showcase — pull requests and issues
-welcome here, but priority goes to the private backlog.
+Snapshot from active development, published as a fresh-init showcase. It is not
+guaranteed to be production-ready end-to-end; expect rough edges and stubbed
+prompt content. Issues and PRs are welcome, but the author's priority is the
+private backlog.
