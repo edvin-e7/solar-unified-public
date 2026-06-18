@@ -106,7 +106,7 @@ def test_append_jsonl_sync_rejects_non_dict():
         append_jsonl_sync(p, "not a dict")  # type: ignore[arg-type]
         raise AssertionError("should have raised TypeError")
     except TypeError:
-        pass
+        pass  # invariant-ok: PY-SILENT-EXC — test asserts expected TypeError
 
 
 def test_append_jsonl_sync_does_not_create_parent_dir():
@@ -116,7 +116,7 @@ def test_append_jsonl_sync_does_not_create_parent_dir():
         append_jsonl_sync(nonexistent, {"a": 1})
         raise AssertionError("should have raised FileNotFoundError")
     except FileNotFoundError:
-        pass
+        pass  # invariant-ok: PY-SILENT-EXC — test asserts expected FileNotFoundError
 
 
 # --- append_jsonl (async) ---

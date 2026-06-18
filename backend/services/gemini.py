@@ -275,7 +275,7 @@ def _extract_json(raw: str) -> Any:
     try:
         return json.loads(payload)
     except json.JSONDecodeError:
-        pass
+        pass  # invariant-ok: PY-SILENT-EXC — direct JSON parse failed; falls through to next parse strategy
 
     # 3. Locate first `{` or `[` and use raw_decode — handles "Extra data"
     #    by parsing the first valid JSON value and ignoring trailing prose.

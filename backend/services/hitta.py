@@ -197,7 +197,7 @@ def parse_hitta_html(html: str, query: str) -> HittaResult:
             nd = json.loads(next_data.string or next_data.get_text())
             _collect_tabs_from_next_data(nd, result)
         except json.JSONDecodeError:
-            pass
+            pass  # invariant-ok: PY-SILENT-EXC — malformed __NEXT_DATA__ JSON; other extractors already ran
 
     return result
 

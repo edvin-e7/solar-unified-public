@@ -292,7 +292,7 @@ def main() -> int:
         from services import detection_embed
         detection_embed.reset_session_for_tests()
     except Exception:  # noqa: BLE001 — best-effort cache reset
-        pass
+        pass  # invariant-ok: PY-SILENT-EXC — best-effort embed-cache reset
 
     print("==> Done. Embed backend will auto-pick up the new head on next request.")
     return 0
