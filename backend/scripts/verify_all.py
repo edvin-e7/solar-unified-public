@@ -71,6 +71,21 @@ def coordinator_boots() -> str:
     return f"{len(c.all)} agents"
 
 
+def frontend_reachable() -> str:
+    """No module in frontend/src is left with nothing that runs it.
+
+    Lives in scripts/frontend_reachability.py rather than here because it is a
+    frontend concern with real logic; this file only decides that it runs. It
+    raises AssertionError with the offending files, which step() reports as a
+    failed check like any other.
+    """
+    repo = ROOT.parent
+    sys.path.insert(0, str(repo / "scripts"))
+    from frontend_reachability import check
+
+    return check(repo / "frontend")
+
+
 def journal_writable() -> str:
     from learning_journal import JOURNAL, record
 
@@ -85,6 +100,7 @@ def main() -> int:
     step("import-core", import_core)
     step("prompts", prompts_load)
     step("coordinator", coordinator_boots)
+    step("frontend-reachability", frontend_reachable)
     step("journal", journal_writable)
 
     passed = sum(1 for _, ok, _ in results if ok)
