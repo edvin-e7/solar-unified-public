@@ -1,0 +1,22 @@
+onlyBuiltDependencies:
+  - electron
+  - electron-winstaller
+# `make dev` runs `pnpm dev`, which by default runs a deps-status preflight
+# (`pnpm install`) before the script. On pnpm 11 that preflight fails hard with
+# ERR_PNPM_IGNORED_BUILDS when a build script isn't pre-approved — aborting Vite
+# even though node_modules is already populated by `make install`. Disable the
+# preflight so the dev server starts; deps are installed explicitly by
+# `make install`. See docs/ISSUE_LEDGER.md.
+verifyDepsBeforeRun: false
+overrides:
+  serialize-javascript: ^7.0.0
+  ip-address: ^10.2.0
+# pnpm 11 renamed the pnpm-10 `onlyBuiltDependencies` allow-list to `allowBuilds` and,
+# when it is missing, WRITES this key itself with the literal string
+# "set this to true or false" — its prompt to a human, not valid config. That dirtied the
+# tree on every install in both repos and was reverted by hand three times in one session.
+# Both packages are already named in onlyBuiltDependencies above, so the answer for both is
+# true; the older key is kept so pnpm 10 (verified working) still resolves them.
+allowBuilds:
+  electron: true
+  electron-winstaller: true
